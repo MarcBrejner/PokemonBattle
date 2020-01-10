@@ -1,13 +1,12 @@
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSerializer;
-
 import java.io.Serializable;
 import java.util.List;
 
 public class Pokemon {
     private int HP;
-    private String name,ele;
+    private String name,ele,status,frontImage,backImage;
     private List<Ability> abilityList;
     private boolean alive;
 
