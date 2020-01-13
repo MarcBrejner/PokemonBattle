@@ -41,12 +41,12 @@ import org.jspace.SpaceRepository;
 public class InGame extends Application{
     
 	public String menuState, state, action;
-
-	public Pokemon pika1, pika2;
-
+	public Pokemon poke1, poke2;
 	public Bar hp1Bar, hp2Bar;
 
 	public int hp1, hp2;
+	public int turn;
+	public int me;
 
 	
     public static void main(String[] args) {
@@ -160,14 +160,19 @@ public class InGame extends Application{
 						menus.get(menuState).draw();
 						switch(action){
 							case "fight":
-								System.out.println("Fight");
-								System.out.println(spl.ft.getStatus());
-								spl.draw();
-								
-								state = "waitingForSplash";
+								state = "waitingForOtherPlayer";
 								action = "none";
 						}
 						break;
+
+					case "waitingForOtherPlayer":
+						//get from tuple space...
+
+						//found opponent
+						spl.draw();
+									
+						state = "waitingForSplash";
+						action = "none";
 
 					case "waitingForSplash":
 						if (!spl.isDrawing()){
@@ -183,23 +188,23 @@ public class InGame extends Application{
 						
 						//pokemons
 						String pikaPath1 = "pikaBack.png";
-						pika1 = new Pokemon(root, 700, 150, pikaPath1);
+						poke1 = new Pokemon(root, 700, 150, pikaPath1);
 
 						String pikaPath2 = "pikaFront.png";
-						pika2 = new Pokemon(root, -100, 100, pikaPath2);
+						poke2 = new Pokemon(root, -100, 100, pikaPath2);
 
-						pika1.draw();
-						pika2.draw();
+						poke1.draw();
+						poke2.draw();
 
-						pika1.glide(100);
-						pika2.glide(400);
+						poke1.glide(100);
+						poke2.glide(400);
 
 						state = "waitingForPokemonsGliding";
 						action = "none";
 						break;
 
 					case "waitingForPokemonsGliding":
-						if (!pika1.isRunning()){
+						if (!poke1.isRunning()){
 							hp1 = 130;
 							hp2 = 130;
 							hp1Bar = new Bar(root, 100, 70, 100, hp1, Color.RED);
@@ -208,6 +213,7 @@ public class InGame extends Application{
 							hp2Bar.draw();
 							menuState = "inFight";
 							state = "fight";
+							turn = 1;
 						}
 						break;
 
@@ -216,10 +222,10 @@ public class InGame extends Application{
 						if (action == "attack"){
 							hp2 = hp2 - 50;
 							hp2Bar.changeContent(hp2);
-							pika2.shake();
+							poke2.shake();
 							action = "none";
 							if (hp2 < 0){
-								pika2.fadeOut();
+								poke2.fadeOut();
 								//win
 							}
 						}
