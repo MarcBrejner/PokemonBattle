@@ -48,13 +48,28 @@ public class InGame extends Application{
 
 	public int hp1, hp2;
 
+	public static int getPort() {
+		return port;
+	}
+
+	public static int port = 31145;
+
 	
     public static void main(String[] args) {
         launch(args);
     }
     
     public void start(Stage stage) throws InterruptedException, UnknownHostException, IOException, InvocationTargetException {
-    	
+
+    	//Set up local repository for communicating with ClientController thread
+		SequentialSpace threadedComs = new SequentialSpace();
+		SpaceRepository localRepository = new SpaceRepository();
+
+		localRepository.add("threadedComs", threadedComs);
+		localRepository.addGate("tcp://localhost:" + port + "/?keep");
+
+		new Thread(new ClientController("abe","eba")).start();
+
     	//game logic
 		int sizeX = 600;
 		int sizeY = 600;
