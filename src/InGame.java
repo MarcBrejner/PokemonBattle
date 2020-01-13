@@ -11,11 +11,11 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import pingPong.GameLoop;
 import javafx.animation.FadeTransition;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
+import javafx.animation.Animation.Status;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -36,11 +36,13 @@ import org.jspace.FormalField;
 import org.jspace.RemoteSpace;
 import org.jspace.SequentialSpace;
 import org.jspace.SpaceRepository;
-import org.omg.CORBA.RepositoryIdHelper;
 
 public class InGame extends Application{
     
-	public String menuState;
+	public String menuState, state, action;
+
+	public Pokemon pika1, pika2;
+
 	
     public static void main(String[] args) {
         launch(args);
@@ -79,11 +81,7 @@ public class InGame extends Application{
         //Starter stage
         stage.toFront();
         stage.requestFocus();
-        stage.show();
-    	
-    	
-    	
-    	
+        stage.show();	
     	
     	//game elements
     	
@@ -93,7 +91,7 @@ public class InGame extends Application{
         
         //main menu
     	ArrayList<String[]> labelsMain = new ArrayList<String[]>();
-    	labelsMain.add(new String[] {"Attack","menu1"});
+    	labelsMain.add(new String[] {"Fight","fight"});
     	labelsMain.add(new String[] {"Settings","menu2"});
     	labelsMain.add(new String[] {"Duck","menu3"});
     	menus.put("mainMenu", new MenuList(gc,100,100,labelsMain));
@@ -103,7 +101,7 @@ public class InGame extends Application{
     	labels1.add(new String[] {"Razor Leaf","menu2"});
     	labels1.add(new String[] {"Duck quack",""});
     	labels1.add(new String[] {"Back","mainMenu"});
-    	menus.put("menu1", new MenuList(gc,100,100,labels1));
+    	menus.put("fight", new MenuList(gc,100,100,labels1));
     	
     	//menu 2
     	ArrayList<String[]> labels2 = new ArrayList<String[]>();
@@ -120,17 +118,15 @@ public class InGame extends Application{
     	labels3.add(new String[] {"F",""});
     	labels3.add(new String[] {"Back","mainMenu"});
     	menus.put("menu3", new MenuRect(gc,100,100,labels3,0,4));
-    	
-    	//bars
-    	Bar hpBar = new Bar(root,400,50,100,145,Color.RED);
-    	Bar manaBar = new Bar(root,400,70,100,100,Color.BLUE);
-        
-    	//pokemons
-    	String pikaPath = "C:\\Users\\X\\Documents\\distributed\\jSpace-Project\\src\\pika.png";
-    	Pokemon pika = new Pokemon(root, 400, 100, pikaPath);
-    	pika.draw();
-    	hpBar.draw();
-        manaBar.draw();
+		
+		//effects
+		Splash spl = new Splash(root, sizeX, sizeY, 60);
+		spl.init();
+
+		
+
+		state = "mainMenu";
+		action = "none";
     	
         scene.setOnKeyPressed(
             new EventHandler<KeyEvent>(){
@@ -138,37 +134,103 @@ public class InGame extends Application{
                     String code = e.getCode().toString();
                     //keyboard handling
                     menus.get(menuState).move(code);
-                    if (code == "O") {
-                    	hpBar.changeContent(-10);
-                    	manaBar.changeContent(-10);
-                    } else if (code == "F") {
-                    	pika.fadeOut();
-                    } else if (code == "S") {
-                    	pika.shake();
-                    	hpBar.changeContent(-50);
-                    }
                 }
             }
         );
      
-        
         //game loop
         gl.setCycleCount(Timeline.INDEFINITE);
         
         KeyFrame kf = new KeyFrame(Duration.seconds(0.017),
         new EventHandler<ActionEvent>(){
-            @Override
+			@Override
+			
             public void handle(ActionEvent event) {
                 //clearing canvas and drawing updated gameobjects
-                gc.clearRect(0, 0, sizeX,sizeY);
-                menus.get(menuState).draw(); 
+				gc.clearRect(0, 0, sizeX,sizeY);
+				
+				switch(state){
+					case "mainMenu":
+						menuState = "mainMenu";
+						menus.get(menuState).draw();
+						switch(action){
+							case "fight":
+								System.out.println("Fight");
+								System.out.println(spl.ft.getStatus());
+								spl.draw();
+								
+								state = "waitingForSplash";
+								action = "none";
+						}
+						break;
+
+					case "waitingForSplash":
+						if (!spl.isDrawing()){
+							state = "fightIntro";
+						}
+						break;
+
+					case "fightIntro":
+						spl.draw();
+						//bars
+						Bar hpBar1 = new Bar(root,50,70,100,145,Color.RED);
+						Bar hpBar2 = new Bar(root,400,50,100,145,Color.RED);
+						
+						//pokemons
+						String pikaPath1 = "C:\\Users\\X\\Documents\\GitHub\\Distributed Pokemon\\PokemonBattle\\src\\pikaBack.png";
+						pika1 = new Pokemon(root, 700, 150, pikaPath1);
+
+						String pikaPath2 = "C:\\Users\\X\\Documents\\GitHub\\Distributed Pokemon\\PokemonBattle\\src\\pikaFront.png";
+						pika2 = new Pokemon(root, -100, 100, pikaPath2);
+
+						pika1.draw();
+						pika2.draw();
+
+						pika1.glide(100);
+						pika2.glide(400);
+
+						state = "waitingForPokemonsGliding";
+						action = "none";
+						break;
+
+					case "waitingForPokemonsGliding":
+						if (!pika1.isRunning()){
+							state = "fight";
+						}
+						System.out.println(pika1.isRunning());
+						break;
+
+					case "fight":
+						menuState = "fight";
+						menus.get(menuState).draw();
+						break;
+
+				}
+
+                
             }
         });
         
         //playing gameloop
         gl.getKeyFrames().add(kf);
         gl.play();
-    }
+	}
+	
+
+	class StateManager {
+
+		String state;
+		Group root;
+
+		public StateManager(Group root){
+			this.root = root;
+		}
+
+		public void handle(){
+			
+		}
+
+	}
     
     class Pokemon {
     	Group root;
@@ -178,18 +240,42 @@ public class InGame extends Application{
     	Image image;
     	FadeTransition ft;
     	ImageView iv;
-    	Timeline timeline;
+    	Timeline timeline, glideTimeline;
     	
     	boolean shake = false;
     	int vx = 0;
-    	int vy = 0;
+		int vy = 0;
     	
     	public Pokemon(Group root, int x, int y, String sprite) {
     		this.root = root;
     		this.x = x;
     		this.y = y;
     		this.sprite = sprite;
-    	}
+		}
+
+		public boolean isRunning(){
+			boolean ftBool = false;
+			boolean tlBool = false;
+			boolean gtlBool = false;
+			if (ft != null){
+				ftBool = ft.getStatus() == Status.RUNNING;
+			}
+			if (timeline != null){
+				tlBool = timeline.getStatus() == Status.RUNNING;
+			}
+			if (glideTimeline != null){
+				gtlBool = glideTimeline.getStatus() == Status.RUNNING;
+			}
+			return ftBool||tlBool||gtlBool;
+		}
+
+		public void glide(int toX){
+			glideTimeline  = new Timeline(); 
+			KeyValue wValue1  = new KeyValue(iv.xProperty(), toX); 
+    		KeyFrame keyFrame1  = new KeyFrame(Duration.millis(1000), wValue1);
+			glideTimeline.getKeyFrames().add(keyFrame1);
+    		glideTimeline.playFromStart();
+		}
     	
     	public void fadeOut() {
     		ft.play();
@@ -280,7 +366,7 @@ public class InGame extends Application{
     		double widthDouble = (double) width;
     		innerRect.setWidth(widthDouble*(content/startContent));
     		innerRect.setHeight(height);
-    		root.getChildren().add(innerRect);
+			root.getChildren().add(innerRect);
     	}
     }
     
@@ -330,7 +416,7 @@ public class InGame extends Application{
     			}
     			buttons.get(selectedIdx).selected = true;
     		} else if (dir == "ENTER") {
-    			menuState = buttons.get(selectedIdx).state;
+    			action = buttons.get(selectedIdx).state;
     		}
     	}
     	
@@ -423,7 +509,101 @@ public class InGame extends Application{
     		}
     	}
     }
-    
+	
+	class Splash {
+		Group root;
+		int sizeX, sizeY, gridSize;
+		FadeTransition ft;
+		ArrayList<FadeTransition> fades = new ArrayList<FadeTransition>();
+
+		public Splash (Group root, int sizeX, int sizeY, int gridSize){
+			this.root = root;
+			this.sizeX = sizeX;
+			this.sizeY = sizeY;
+			this.gridSize = gridSize;
+		}
+
+		public boolean isDrawing(){
+			return fades.get(fades.size()/2).getStatus() == Status.RUNNING;
+		}
+
+		public void draw(){
+			for (int i=0; i<fades.size()/2; i++){
+				fades.get(i).playFromStart();
+				fades.get(fades.size()-i-1).playFromStart();
+			}
+			reverse();
+		}
+
+		public void reverse(){
+			for (FadeTransition fade:fades){
+				if (fade.getFromValue() == 1){
+					fade.setFromValue(0);
+					fade.setToValue(1);
+				} else {
+					fade.setFromValue(1);
+					fade.setToValue(0);
+				}
+			}
+		}
+
+		public void init(){
+			int x = 0; 
+			int y = 0;
+			int delay = 100;
+			while(true){
+				Rectangle rec = new Rectangle(x, y, gridSize, gridSize);
+				rec.setOpacity(0);
+				root.getChildren().add(rec);
+
+				//fade in effect
+				ft = new FadeTransition(Duration.millis(500),rec);
+				ft.setFromValue(0);
+				ft.setToValue(1);
+				ft.setDelay(Duration.millis(delay));
+				
+				fades.add(ft);
+
+				x = x + gridSize;
+				delay = delay + 20;
+				if (x > sizeX){
+					x = 0;
+					y = y + gridSize;
+				}
+				if (y > sizeY/2){
+					break;
+				}
+			}
+			x = sizeX-gridSize;
+			y = sizeY-gridSize;
+			delay = 100;
+			while(true){
+				Rectangle rec = new Rectangle(x, y, gridSize, gridSize);
+				rec.setOpacity(0);
+				root.getChildren().add(rec);
+
+				//fade in effect
+				ft = new FadeTransition(Duration.millis(500),rec);
+				ft.setFromValue(0);
+				ft.setToValue(1);
+				ft.setDelay(Duration.millis(delay));
+				
+				fades.add(ft);
+
+				x = x - gridSize;
+				delay = delay + 20;
+				if (x < 0){
+					x = sizeX;
+					y = y - gridSize;
+				}
+				if (y < sizeY/2){
+					break;
+				}
+			}
+		}
+
+	}
+
     class Button {
     	int x, y;
     	String label,state;
