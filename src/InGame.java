@@ -11,7 +11,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import jdk.nashorn.internal.ir.annotations.Ignore;
+
 import javafx.animation.FadeTransition;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -182,10 +182,10 @@ public class InGame extends Application{
 						hp2Bar = new Bar(root,400,50,100,145,Color.RED);
 						
 						//pokemons
-						String pikaPath1 = "C:\\Users\\X\\Documents\\GitHub\\Distributed Pokemon\\PokemonBattle\\src\\pikaBack.png";
+						String pikaPath1 = "src\\pikaBack.png";
 						pika1 = new Pokemon(root, 700, 150, pikaPath1);
 
-						String pikaPath2 = "C:\\Users\\X\\Documents\\GitHub\\Distributed Pokemon\\PokemonBattle\\src\\pikaFront.png";
+						String pikaPath2 = "src\\pikaFront.png";
 						pika2 = new Pokemon(root, -100, 100, pikaPath2);
 
 						pika1.draw();
