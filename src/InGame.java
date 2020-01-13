@@ -11,6 +11,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import jdk.nashorn.internal.ir.annotations.Ignore;
 import javafx.animation.FadeTransition;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -42,6 +43,10 @@ public class InGame extends Application{
 	public String menuState, state, action;
 
 	public Pokemon pika1, pika2;
+
+	public Bar hp1Bar, hp2Bar;
+
+	public int hp1, hp2;
 
 	
     public static void main(String[] args) {
@@ -98,10 +103,10 @@ public class InGame extends Application{
     	
     	//menu 1
     	ArrayList<String[]> labels1 = new ArrayList<String[]>();
-    	labels1.add(new String[] {"Razor Leaf","menu2"});
+    	labels1.add(new String[] {"Attack","attack"});
     	labels1.add(new String[] {"Duck quack",""});
     	labels1.add(new String[] {"Back","mainMenu"});
-    	menus.put("fight", new MenuList(gc,100,100,labels1));
+    	menus.put("inFight", new MenuList(gc,100,400,labels1));
     	
     	//menu 2
     	ArrayList<String[]> labels2 = new ArrayList<String[]>();
@@ -173,8 +178,8 @@ public class InGame extends Application{
 					case "fightIntro":
 						spl.draw();
 						//bars
-						Bar hpBar1 = new Bar(root,50,70,100,145,Color.RED);
-						Bar hpBar2 = new Bar(root,400,50,100,145,Color.RED);
+						hp1Bar = new Bar(root,50,70,100,145,Color.RED);
+						hp2Bar = new Bar(root,400,50,100,145,Color.RED);
 						
 						//pokemons
 						String pikaPath1 = "C:\\Users\\X\\Documents\\GitHub\\Distributed Pokemon\\PokemonBattle\\src\\pikaBack.png";
@@ -195,14 +200,29 @@ public class InGame extends Application{
 
 					case "waitingForPokemonsGliding":
 						if (!pika1.isRunning()){
+							hp1 = 130;
+							hp2 = 130;
+							hp1Bar = new Bar(root, 100, 70, 100, hp1, Color.RED);
+							hp1Bar.draw();
+							hp2Bar = new Bar(root, 400, 50, 100, hp2, Color.RED);
+							hp2Bar.draw();
+							menuState = "inFight";
 							state = "fight";
 						}
-						System.out.println(pika1.isRunning());
 						break;
 
 					case "fight":
-						menuState = "fight";
 						menus.get(menuState).draw();
+						if (action == "attack"){
+							hp2 = hp2 - 50;
+							hp2Bar.changeContent(hp2);
+							pika2.shake();
+							action = "none";
+							if (hp2 < 0){
+								pika2.fadeOut();
+								//win
+							}
+						}
 						break;
 
 				}
@@ -270,8 +290,9 @@ public class InGame extends Application{
 		}
 
 		public void glide(int toX){
+			x = toX;
 			glideTimeline  = new Timeline(); 
-			KeyValue wValue1  = new KeyValue(iv.xProperty(), toX); 
+			KeyValue wValue1  = new KeyValue(iv.xProperty(), toX);
     		KeyFrame keyFrame1  = new KeyFrame(Duration.millis(1000), wValue1);
 			glideTimeline.getKeyFrames().add(keyFrame1);
     		glideTimeline.playFromStart();
@@ -332,13 +353,15 @@ public class InGame extends Application{
     		this.x = x;
     		this.y = y;
     		this.width = width;
-    		this.content = content;
-    		this.startContent = content;
+    		this.content = (double) content;
+    		this.startContent = this.content;
     		this.color = color;
     	}
     	
-    	public void changeContent(int change) {
-    		content = content+change;
+    	public void changeContent(int newValue) {
+			System.out.println("newValue: "+newValue);
+			content = (double) newValue;
+			System.out.println("content: "+content);
     		double widthDouble = (double) width;
     		KeyValue wValue  = new KeyValue(innerRect.widthProperty(), widthDouble*(content/startContent)); 
     		KeyFrame keyFrame  = new KeyFrame(Duration.millis(500), wValue);
