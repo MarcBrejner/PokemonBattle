@@ -9,14 +9,23 @@ import java.io.InputStreamReader;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 
-public class ClientController {
+public class ClientController implements Runnable {
 	
 	public static String username, password, status;
+
+	public ClientController(String username, String password){
+		this.username = username;
+		this.password = password;
+	}
 	
-	public static void main(String[] args) {
+	public void run(){
 
 		try {
-			
+
+			String localURI = "tcp://localhost:"+InGame.getPort()+"/threadedComs?keep";
+			RemoteSpace threadedComs = new RemoteSpace(localURI);
+
+
 			BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
 			// Set the URI of the chat space
@@ -31,13 +40,15 @@ public class ClientController {
 
 			Boolean connected = true;
 			while(connected) {
+				/*
 				// Read user name from the console			
 				System.out.print("Enter your username: ");
 				username = input.readLine();
 				
 				System.out.print("Enter your password: ");
 				password = input.readLine();
-				
+				*/
+
 				//join room
 				System.out.println("Registering to the server...");
 				lobby.put("connect",username,password);
@@ -58,7 +69,7 @@ public class ClientController {
 						while(registered) {
 							System.out.println(status);
 							System.out.println("Give an action (MEMBERS, FIGHT, DISCONNECT):");
-							String action = input.readLine();
+							String action = (String) threadedComs.get(new FormalField(String.class))[0];
 							if(action.equals("MEMBERS") || action.equals("FIGHT") || action.equals("DISCONNECT")) {
 								serverController.put("SERVER", action);
 								switch(action){
