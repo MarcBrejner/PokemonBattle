@@ -90,6 +90,7 @@ public class ClientController implements Runnable {
 									case "FIGHT":
 										System.out.println("Looking for an opponent...");
 										String fightURI = (String)serverController.get(new ActualField("CLIENT"), new FormalField(String.class))[1];
+										threadedComs.put("FIGHT_ACK");
 										System.out.println("Got a fight ! At " + fightURI);
 										fightHandler(fightURI);
 										System.out.println("Fight has ended !");
