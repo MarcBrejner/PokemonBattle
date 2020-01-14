@@ -65,6 +65,10 @@ class MenuList implements Menu {
         this.selectedIdx = 0;
         buttons.get(selectedIdx).selected = true;
     }
+
+    public String getAction(){
+        return buttons.get(selectedIdx).state;
+    }
     
     public void move(String dir) {
         if (dir == "UP") {
@@ -81,8 +85,6 @@ class MenuList implements Menu {
                 selectedIdx = 0;
             }
             buttons.get(selectedIdx).selected = true;
-        } else if (dir == "ENTER") {
-            InGame.action = buttons.get(selectedIdx).state;
         }
     }
     

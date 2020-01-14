@@ -22,7 +22,7 @@ public class ClientController implements Runnable {
 
 		try {
 
-			String localURI = "tcp://localhost:"+InGame.getPort()+"/threadedComs?keep";
+			String localURI = "tcp://localhost:"+Controller.port+"/threadedComs?keep";
 			RemoteSpace threadedComs = new RemoteSpace(localURI);
 
 

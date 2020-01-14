@@ -40,6 +40,10 @@ class MenuRect implements Menu{
         
     }
     
+    public String getAction(){
+        return buttons.get(selectedIdx).state;
+    }
+
     public void move(String dir) {
         if (dir == "UP") {
             buttons.get(selectedIdx).selected = false;
@@ -73,8 +77,6 @@ class MenuRect implements Menu{
                 selectedIdx = buttons.size()-1;
             }
             buttons.get(selectedIdx).selected = true;
-        } else if (dir == "ENTER") {
-            InGame.menuState = buttons.get(selectedIdx).state;
         }
     }
     
