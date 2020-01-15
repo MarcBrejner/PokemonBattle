@@ -37,9 +37,11 @@ public class InGame extends Application{
 	public static void main(String[] args) {
 		int port =  Integer.parseInt(args[0]);
         String username = args[1];
+        String password = args[2];
+		
 
 		//creating instances
-		controller = new Controller(port, username);
+		controller = new Controller(port, username, password);
         launch(args);
     }
     

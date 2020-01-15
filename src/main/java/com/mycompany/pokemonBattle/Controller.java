@@ -15,7 +15,7 @@ class Controller {
 
     GameElements gameElements;
 
-    public Controller(int port, String username){
+    public Controller(int port, String username, String password){
         this.state = "mainMenu";
         this.port = port;
 
@@ -26,7 +26,7 @@ class Controller {
 		localRepository.add("threadedComs", threadedComs);
 		localRepository.addGate("tcp://localhost:" + port + "/?keep");
         
-        new Thread(new ClientController(username, "eba")).start();
+        new Thread(new ClientController(username, password)).start();
     }
 
     public void handleKeyboard(String code){
