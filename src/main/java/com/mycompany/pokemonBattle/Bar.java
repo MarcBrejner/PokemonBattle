@@ -17,6 +17,7 @@ class Bar {
     Color color;
     Rectangle innerRect;
     Timeline timeline;
+    Rectangle outerRect;
     
     public Bar (Group root, int x, int y, int width, int content, Color color) {
         this.root = root;
@@ -40,11 +41,17 @@ class Bar {
         timeline.play();
     }
     
+    public void remove() {
+    	System.out.println("Removing bar");
+    	root.getChildren().remove(outerRect);
+    	root.getChildren().remove(innerRect);
+    }
+    
     public void draw() {
         int border = 2;
         int height = 4;
         
-        Rectangle outerRect = new Rectangle();
+        outerRect = new Rectangle();
         outerRect.setFill(color.DARKGREY);
         outerRect.setX(x-border);
         outerRect.setY(y-border);

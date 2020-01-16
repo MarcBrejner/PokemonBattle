@@ -37,7 +37,13 @@ class Controller {
     public void handleKeyboard(String code, String text, boolean isShifted){
     	shifted = isShifted;
         if (code == "ENTER"){
-            performAction(menu.getAction());
+			if (gameElements.textBoxIsTyping()) {
+				gameElements.speedUpTextBoxTyping();
+			} else if (gameElements.textBoxExists()) {
+				gameElements.removeTextBox();
+			} else {
+				performAction(menu.getAction());
+			}
         } else if (code == "UP" || code == "DOWN" || code == "RIGHT" || code == "LEFT"){
             menu.move(code);
         } else if(code == "CAPS") {
@@ -49,7 +55,6 @@ class Controller {
 
     public void performAction(String action){
     	System.out.println("ACTION : " + action);
-    	
         switch (action) {
 	        case "welcome":
 	        	menu.changeMenu("welcome");
@@ -151,8 +156,20 @@ class Controller {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-                state = "waitingForOtherPlayer";
-                break;
+				state = "waitingForOtherPlayer";
+				break;
+
+            case "attack":
+            	gameElements.commenceAttack();	
+            	break;
+            case "hide":
+            	gameElements.pokemon1View.remove();
+            	gameElements.hpBar1.remove();
+            	break;
+            case "show":
+            	gameElements.pokemon1View.draw();
+            	gameElements.hpBar1.draw();
+            	break;
         }
     }
 
@@ -160,6 +177,10 @@ class Controller {
         //creating game elements
         menu = new MenuLogic(InGame.gc);
         gameElements = new GameElements(InGame.root);
+        String[] labels = new String[] {"Cool bees","cool bees",
+        		"thats a whole lot of geese",
+        		"Lorem ipsum dolor sit amet, consectetur adipiscing"};
+        gameElements.createTextBox(50, 300, labels);
     }
 
     public void stateHandler(){
@@ -275,13 +296,6 @@ class Controller {
             case "waitingForOtherPlayer":
             	// Maybe add a loading screen here ?
                 //get from tuple space...
-                try {
-                    //found opponent
-                    threadedComs.get(new ActualField("FIGHT_ACK"));
-                } catch (InterruptedException e){
-                    e.printStackTrace();
-                }
-
                 InGame.splashScreen.draw();
                 state = "waitingForSplash";
                 break;
@@ -297,7 +311,10 @@ class Controller {
                 InGame.splashScreen.draw();
                 state = "fight";
                 gameElements.draw();
-                menu.changeMenu("inFight");
+                gameElements.trainer1View.glide(100);
+                gameElements.trainer1View.glide(500);
+                gameElements.createTextBox(50, 300, "Oh geez thats an opponent trainer");
+               
                 break;
 
             case "fight":

@@ -45,6 +45,7 @@ class MenuLogic {
         //main menu
         ArrayList<String[]> labelsMain = new ArrayList<String[]>();
         labelsMain.add(new String[]{"Fight", "fight"});
+
         labelsMain.add(new String[]{"Pokemons", "pokemons"});
         labelsMain.add(new String[]{"Items", "items"});
         labelsMain.add(new String[]{"Members", "members"});
@@ -53,6 +54,7 @@ class MenuLogic {
 
         //menu 1
         generateAbilityMenu(Controller.getUser().getPokemons().get(0).getAbilities(),menus);
+
 
         //menu 2
         ArrayList<String[]> labels2 = new ArrayList<String[]>();
@@ -73,7 +75,6 @@ class MenuLogic {
         currentMenu = menus.get(menuState);
     }
 
-
     public void move(String code){
         currentMenu.move(code);
     }
@@ -83,7 +84,7 @@ class MenuLogic {
     }
 
     public void draw(){
-        menus.get(menuState).draw();
+        currentMenu.draw();
     }
     
     public void changeMenu(String newMenu) {
