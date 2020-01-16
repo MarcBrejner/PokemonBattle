@@ -254,7 +254,15 @@ class Fight implements Runnable {
 			actions.put(fighter1.getUsername(), Profile.toJson(fighter2));
 			actions.put(fighter2.getUsername(), Profile.toJson(fighter1));
 
-			actions.put("START");
+			data.put(Pokemon.toJson(new Pokemon("Pikachu")),fighter1);
+			data.put(Pokemon.toJson(new Pokemon("Pikachu")),fighter1);
+
+			data.put(Pokemon.toJson(new Pokemon("Pikachu")),fighter2);
+			data.put(Pokemon.toJson(new Pokemon("Pikachu")),fighter2);
+
+			actions.put("START",fighter1.getUsername());
+			actions.put("ENEMYGO",fighter2.getUsername());
+
 			System.out.println("START put");
 			actions.get(new ActualField("END"));
 

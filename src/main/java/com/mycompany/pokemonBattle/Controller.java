@@ -17,7 +17,11 @@ class Controller {
     public SpaceRepository localRepository;
     //public static String username;
     public MenuLogic menu;
-    public Profile user;
+
+
+
+	public static Profile user;
+    public static final int MAX_ABILITY = 4;
 
     GameElements gameElements;
 
@@ -227,6 +231,47 @@ class Controller {
                 menu.draw();
                 break;
 
+			case "useItem":
+				break;
+
+			case "useAbility1":
+				Ability ab1 = user.getPokemons().get(0).getAbilities().get(0);
+				try {
+					threadedComs.put("ABILITY",Ability.toJson(ab1));
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				break;
+
+			case "useAbility2":
+				Ability ab2 = user.getPokemons().get(0).getAbilities().get(0);
+				try {
+					threadedComs.put("ABILITY",Ability.toJson(ab2));
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				break;
+
+			case "useAbility3":
+				Ability ab3 = user.getPokemons().get(0).getAbilities().get(0);
+				try {
+					threadedComs.put("ABILITY",Ability.toJson(ab3));
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				break;
+
+			case "useAbility4":
+				Ability ab4 = user.getPokemons().get(0).getAbilities().get(0);
+				try {
+					threadedComs.put("ABILITY",Ability.toJson(ab4));
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				break;
+
+
+
             case "waitingForOtherPlayer":
             	// Maybe add a loading screen here ?
                 //get from tuple space...
@@ -273,6 +318,11 @@ class Controller {
             	break;
         }
     }
+
+	public static Profile getUser() {
+		return user;
+	}
+
 
 
 }
