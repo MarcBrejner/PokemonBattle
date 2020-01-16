@@ -170,6 +170,9 @@ class Controller {
             	gameElements.pokemon1View.draw();
             	gameElements.hpBar1.draw();
             	break;
+            case "does not matter":
+            	state = "preFightAnimation1";
+            	menu.changeMenu("inFight");
         }
     }
 
@@ -177,13 +180,11 @@ class Controller {
         //creating game elements
         menu = new MenuLogic(InGame.gc);
         gameElements = new GameElements(InGame.root);
-        String[] labels = new String[] {"Cool bees","cool bees",
-        		"thats a whole lot of geese",
-        		"Lorem ipsum dolor sit amet, consectetur adipiscing"};
-        gameElements.createTextBox(50, 300, labels);
     }
 
     public void stateHandler(){
+    	int tbx = 50;
+    	int tby = 500;
         switch (state) {
         	case "welcome":
         		
@@ -309,16 +310,74 @@ class Controller {
 
             case "fightIntro":
                 InGame.splashScreen.draw();
-                state = "fight";
                 gameElements.draw();
                 gameElements.trainer1View.glide(100);
                 gameElements.trainer1View.glide(500);
                 gameElements.createTextBox(50, 300, "Oh geez thats an opponent trainer");
                
+                gameElements.trainer2View.glide(450);
+                String[] fightIntroTexts = new String[] {
+                		"You: Oh geez thats Fanya, my russian friend",
+                		"Fanya: Ї ЩЇLL ҪЯЏSҤ ҰФЏ",
+                		"You: ...",
+                		"*Choose your pokemon*"};
+                gameElements.createTextBox(tbx,tby, fightIntroTexts);
+                menu.changeMenu("inFight");
+                state = "fightIntro2";
                 break;
+                
+            case "fightIntro2":
+            	if (!gameElements.textBoxExists()) {
+            		state = "choose pokemon";
+            		menu.changeMenu("choose pokemon");
+            	}
+            	break;
+            	
+            case "choose pokemon":
+            	menu.draw();
+            	break;
+            	
+            case "preFightAnimation1":
+            	gameElements.createTextBox(tbx,tby, "You: GO *INSERT POKEMON NAME*");
+            	gameElements.trainer1View.glide(-100);
+            	gameElements.pokemon1View.glide(100);
+            	state = "preFightAnimation2";
+            	break;
+            
+            case "preFightAnimation2":
+            	if (!gameElements.textBoxExists()) {
+            		gameElements.createTextBox(tbx,tby, "Fanya: ԠДҪЊДԠP, DЄLЇVЄЯ MЄ ҢЇS SPЇЍЄ");
+            		state = "preFightAnimation3";
+            	}
+            	break;
+            	
+        
+            
+            case "preFightAnimation3":
+            	if (!gameElements.textBoxExists()) {
+            		gameElements.trainer2View.glide(700);
+            		gameElements.pokemon2View.glide(400);
+            		state = "preFightAnimation4";
+            		gameElements.createTextBox(tbx, tby, "Machamp: I̴̤̍ ̶͊ ̵̯̉Ć̶͖H̷̢̆R̸̪̀U̶̥͂S̸͔̄H̴͚͆ ̴̪̈Y̴͈̏Ỏ̵̼U̴̜͒");
+            	}
+            	break;
+            
+            case "preFightAnimation4":
+            	if (!gameElements.textBoxExists()) {
+            		state = "fight";
+            		gameElements.drawBars();
+            	}
+            	break;
 
             case "fight":
                 menu.draw();
+                if (gameElements.pokemon2.getHP() < 0 && !gameElements.pokemon2View.isRunning()) {
+                	String[] fightIntroTexts2 = new String[] {
+                     		"Pikachu used something*",
+                     		"It was extremely effective"};
+            		gameElements.createTextBox(tbx, tby, fightIntroTexts2);
+                	state = "machamp is kil";
+                }
                 break;
                 
             case "pokemons":
@@ -332,6 +391,35 @@ class Controller {
             case "members":
             	// for now just redirect to the main menu but in the end should display the list of connectedMembers
             	state = "mainMenu";
+            
+            case "machamp is kil":
+            	if (!gameElements.textBoxExists()) {
+	            	gameElements.pokemon2View.fadeOut();
+	            	state = "machamp is fading";
+            	}
+            	break;
+            
+            case "machamp is fading":
+            	System.out.println(gameElements.pokemon2View.isRunning());
+            	if (!gameElements.pokemon2View.isRunning()) {
+            		gameElements.pokemon1View.glide(-100);
+            		gameElements.trainer1View.glide(100);
+            		gameElements.trainer2View.glide(450);
+            		gameElements.hpBar1.remove();
+            		gameElements.hpBar2.remove();
+            		 String[] fightIntroTexts2 = new String[] {
+                     		"Fanya: *crying*",
+                     		"Fanya: PФҚԐ ЇS ҜЇL",
+                     		"Fanya: ЍФФФФФФ!",
+                     		"*TO BE CONTINUED*"};
+            		gameElements.createTextBox(tbx, tby, fightIntroTexts2);
+            		state = "fade out";
+            	}
+            	break;
+            case "fade out":
+            	if (!gameElements.textBoxExists()) {
+            		gameElements.trainer2View.glide(700);
+            	}
             	break;
         }
     }

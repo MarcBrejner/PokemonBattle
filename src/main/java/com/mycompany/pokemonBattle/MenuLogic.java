@@ -58,8 +58,10 @@ class MenuLogic {
 
         //menu 2
         ArrayList<String[]> labels2 = new ArrayList<String[]>();
-        labels2.add(new String[]{"RAZOR LEAF WAS VERY EFFECTIVE", "mainMenu"});
-        menus.put("menu2", new MenuList(gc, 100, 100, labels2));
+        labels2.add(new String[]{"Pikachu", "does not matter"});
+        labels2.add(new String[]{"Achtuuu!", "does not matter"});
+        labels2.add(new String[]{"Bless you", "does not matter"});
+        menus.put("choose pokemon", new MenuList(gc, 100, 100, labels2));
 
         //menu 3
         ArrayList<String[]> labels3 = new ArrayList<String[]>();
