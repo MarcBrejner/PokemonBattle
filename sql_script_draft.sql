@@ -66,9 +66,13 @@ FOREIGN KEY(ownerId) REFERENCES Profile(id)
 
 INSERT INTO pokemonGame.Authentication(username, password) VALUES ("vincent", "password");
 INSERT INTO pokemonGame.Authentication(username, password) VALUES ("franck", "password");
+INSERT INTO pokemonGame.Authentication(username, password) VALUES ("oliver", "password");
+INSERT INTO pokemonGame.Authentication(username, password) VALUES ("marc", "password");
 
 INSERT INTO pokemonGame.Profile(username, level) VALUES ("vincent", 0);
 INSERT INTO pokemonGame.Profile(username, level) VALUES ("franck", 0);
+INSERT INTO pokemonGame.Profile(username, level) VALUES ("oliver", 0);
+INSERT INTO pokemonGame.Profile(username, level) VALUES ("marc", 0);
 
 INSERT INTO pokemonGame.Pokemon(masterId, name, element, status, hp, maxHp, alive)
 VALUES (1, "Pikachu", "Electric", "None", 80, 80, true);
