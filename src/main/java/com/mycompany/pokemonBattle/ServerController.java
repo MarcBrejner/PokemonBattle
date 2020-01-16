@@ -253,9 +253,11 @@ class Fight implements Runnable {
 		try {
 			actions.put(fighter1.getUsername(), Profile.toJson(fighter2));
 			actions.put(fighter2.getUsername(), Profile.toJson(fighter1));
+
 			actions.put("START");
 			System.out.println("START put");
 			actions.get(new ActualField("END"));
+
 			System.out.println("Fight " + fightURI + " ended !");
 			repository.remove(fightURI + "/actions");
 			repository.remove(fightURI + "/data");

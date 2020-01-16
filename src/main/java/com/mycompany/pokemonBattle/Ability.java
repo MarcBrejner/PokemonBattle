@@ -95,6 +95,10 @@ public class Ability{
         return gsonAbility;
 	}
 
+	public void Apply(Pokemon pokemon){
+
+    }
+
     public boolean isOnEnemy() {
         return enemy;
     }
