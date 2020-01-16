@@ -17,7 +17,7 @@ UNIQUE ( username )
 CREATE TABLE pokemonGame.Profile (
 id INT NOT NULL auto_increment,
 username varchar(20) NOT NULL,
-level int,
+level int DEFAULT 0,
 PRIMARY KEY ( id ),
 FOREIGN KEY (username) REFERENCES Authentication(username),
 UNIQUE ( username )
@@ -69,10 +69,10 @@ INSERT INTO pokemonGame.Authentication(username, password) VALUES ("franck", "pa
 INSERT INTO pokemonGame.Authentication(username, password) VALUES ("oliver", "password");
 INSERT INTO pokemonGame.Authentication(username, password) VALUES ("marc", "password");
 
-INSERT INTO pokemonGame.Profile(username, level) VALUES ("vincent", 0);
-INSERT INTO pokemonGame.Profile(username, level) VALUES ("franck", 0);
-INSERT INTO pokemonGame.Profile(username, level) VALUES ("oliver", 0);
-INSERT INTO pokemonGame.Profile(username, level) VALUES ("marc", 0);
+INSERT INTO pokemonGame.Profile(username, level) VALUES ("vincent", 1);
+INSERT INTO pokemonGame.Profile(username) VALUES ("franck");
+INSERT INTO pokemonGame.Profile(username) VALUES ("oliver");
+INSERT INTO pokemonGame.Profile(username) VALUES ("marc");
 
 INSERT INTO pokemonGame.Pokemon(masterId, name, element, status, hp, maxHp, alive)
 VALUES (1, "Pikachu", "Electric", "None", 80, 80, true);

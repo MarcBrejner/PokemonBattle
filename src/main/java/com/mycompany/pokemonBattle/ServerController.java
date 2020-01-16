@@ -7,6 +7,8 @@ import java.util.List;
 
 import org.jspace.*;
 
+import com.google.gson.Gson;
+
 public class ServerController {
 
 	public static void main(String[] args) {
@@ -31,25 +33,36 @@ public class ServerController {
 			while (true) {
 				// lobby
 				System.out.println("Waiting for requests");
-				lobbyRequest = lobby.get(new ActualField("connect"), new FormalField(String.class), new FormalField(String.class));
-
-				System.out.println("Got a connect request");
+				lobbyRequest = lobby.get(new FormalField(String.class), new FormalField(String.class), new FormalField(String.class));
+				String request = (String) lobbyRequest[0];
 				username = (String) lobbyRequest[1];
 				password = (String) lobbyRequest[2];
-
-				if (database.authenticate(username, password)) {
-					if (connectedMembers.queryp(new ActualField(username)) != null) {
-						// user already connected
-						System.out.println("ERROR : connection on already connected profile");
-						lobby.put(username, "Already connected");
+				
+				if(request.equals("CONNECT")) {
+					System.out.println("Got a connect request");
+					if (database.authenticate(username, password)) {
+						if (connectedMembers.queryp(new ActualField(username)) != null) {
+							// user already connected
+							System.out.println("ERROR : connection on already connected profile");
+							lobby.put(username, "Already connected");
+						} else {
+							// register member and creating handler
+							connectedMembers.put(username);
+							new Thread(new UserHandler(username, repository, database)).start();
+							lobby.put(username, "OK");
+						}
 					} else {
-						// register member and creating handler
-						connectedMembers.put(username);
-						new Thread(new UserHandler(username, repository, database)).start();
-						lobby.put(username, "OK");
+						lobby.put(username, "Forbidden");
 					}
 				} else {
-					lobby.put(username, "Forbidden");
+					System.out.println("Got a SignUp request");
+					if(database.createUser(username, password)) {
+						connectedMembers.put(username);
+						new Thread(new UserHandler(username, repository, database)).start();
+						lobby.put("SIGNUP", username, "OK");
+					} else {
+						lobby.put("SIGNUP", username, "ERROR");
+					}
 				}
 			}
 		} catch (InterruptedException e) {
@@ -124,15 +137,12 @@ class UserHandler implements Runnable {
 			switch (action) {
 			case "MEMBERS":
 				List<Object[]> list = members.queryAll(new FormalField(String.class));
-				/* Object[] connectedMembers = list.toArray(new Object[0]);
-				for(Object elem : connectedMembers) {
-					elem = elem[0];
-				} */
-				handler.put("CLIENT", list.size());
-				for (Object[] elem : list) {
-					handler.put("CLIENT", elem[0]);
+				String[] connectedMembers = new String[list.size()];
+				for(int i=0; i < list.size(); i++) {
+					connectedMembers[i] = (String)list.get(i)[0];
 				}
-				//handler.put(connectedMembers);
+				Gson gson = new Gson();
+				handler.put("CLIENT", gson.toJson(connectedMembers));
 				System.out.println("Handler " + profile.getUsername() + " has sent list of all connected members");
 				break;
 				
@@ -160,7 +170,6 @@ class UserHandler implements Runnable {
 			return result;
 		} catch (InterruptedException e) {
 			e.printStackTrace();
-			//handler.put("CLIENT", "ERROR");
 			return false;
 		}
 
