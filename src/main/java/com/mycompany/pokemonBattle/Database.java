@@ -21,7 +21,8 @@ public class Database {
 		//Profile p1 = database.getProfile("vincent");
 		//Profile p2 = database.getProfile("franck");
 		//database.authenticate("vincent", "password");
-		database.changePassword("vincent", "pwd");
+		//database.changePassword("vincent", "pwd");
+		//System.out.println("User created : " + database.createUser("vincent", "pwd"));
 	}
 
 	public Database(String db, String account, String pwd) {
@@ -36,6 +37,9 @@ public class Database {
             System.out.println("Established connection...");
 
             // Prepared Statement
+            this.insertCredentials = this.conn.prepareStatement("INSERT INTO Authentication (username, password) VALUES (?, ?);");
+            this.insertProfile = this.conn.prepareStatement("INSERT INTO Profile (username) VALUES (?);");
+            
             this.getCredentials = this.conn.prepareStatement("SELECT * FROM Authentication WHERE username = ?;");
             this.getProfile = this.conn.prepareStatement("SELECT * FROM Profile WHERE username = ?;");
             this.getItems = this.conn.prepareStatement("SELECT * FROM Item WHERE ownerId = ?;");
@@ -81,6 +85,25 @@ public class Database {
 		
 		System.out.println("Testing password for username : " + username_);	
 		return password.equals(password_);
+		
+	}
+	
+	public boolean createUser(String username, String password) {
+		try {
+			// authentication in the first place
+			this.insertCredentials.setString(1, username);
+			this.insertCredentials.setString(2, password);
+            this.insertCredentials.execute();
+			
+			// then the profile
+            this.insertProfile.setString(1, username);
+            this.insertProfile.execute();
+            
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            return false;
+		}
+		return true;
 		
 	}
 

@@ -5,6 +5,9 @@ import org.jspace.FormalField;
 import org.jspace.RemoteSpace;
 import org.jspace.SequentialSpace;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -13,11 +16,13 @@ import java.util.ArrayList;
 
 public class ClientController implements Runnable {
 	
-	public static String username, password, status;
+	public String username, password, status;
+	private SequentialSpace mainController;
 	
-	public ClientController(String username, String password) {
-		this.username = username;
-		this.password = password;
+	public ClientController(SequentialSpace mainController) {
+		//this.username = username;
+		//this.password = password;
+		this.mainController = mainController;
 	}
 	
 	public void run() {
@@ -45,15 +50,27 @@ public class ClientController implements Runnable {
 				//System.out.print("Enter your password: ");
 				//password = input.readLine();
 				
-				//join room
+				System.out.println("Waiting for connection credentials from mainController...");
+				Object[] credentials = mainController.get(new FormalField(String.class), new FormalField(String.class), new FormalField(String.class));
+				String request = (String)credentials[0];
+				username = (String)credentials[1];
+				password = (String)credentials[2];
+				
+				//authenticate or sign-up and join room
 				System.out.println("Registering to the server...");
-				lobby.put("connect",username,password);
+				lobby.put(request,username,password);
 				
 				//awaiting acknowledgement
 				try {
-					String resp = (String)lobby.get(new ActualField(username), new FormalField(String.class))[1];
+					String resp;
+					if(request.equals("CONNECT")) {
+						resp = (String)lobby.get(new ActualField(username), new FormalField(String.class))[1];
+					} else {
+						resp = (String)lobby.get(new ActualField("SIGNUP"), new ActualField(username), new FormalField(String.class))[2];
+					}
 					if (resp.equals("OK")) {
-						System.out.println("Registration done");
+						System.out.println("Authentication successful");
+						mainController.put(request + "_ACK", "OK");
 						//joining room
 						String serverControllerURI = "tcp://"+ Config.serverHost +"/handlers/"+username+"?keep";
 						RemoteSpace serverController = new RemoteSpace(serverControllerURI);
@@ -63,46 +80,22 @@ public class ClientController implements Runnable {
 						System.out.println("Waiting for data reception...");
 						String t = (String)serverController.get(new ActualField("CLIENT"), new FormalField(String.class))[1];
 						System.out.println("Received data : " + t);
+						mainController.put("PROFILE", t);
 						Profile profile = Profile.fromJson(t);
 
 						// Keep sending whatever the user types
 						Boolean registered = true;
 						while(registered) {
 							System.out.println(status);
-							System.out.println("Give an action (MEMBERS, POKEMONS, ITEMS, FIGHT, DISCONNECT):");
-							String action = input.readLine();
+							System.out.println("Waiting for an action (MEMBERS, POKEMONS, ITEMS, FIGHT, DISCONNECT) from mainController...");
+							//String action = input.readLine();
+							String action = (String) mainController.get(new FormalField(String.class))[0];
 							if(action.equals("MEMBERS") || action.equals("FIGHT") || action.equals("DISCONNECT") || action.equals("POKEMONS") || action.equals("ITEMS")) {
 								serverController.put("SERVER", action);
 								switch(action){
 									case "MEMBERS":
-										//String[] connectedMembers = (String[])serverController.get(new FormalField(Object.class))[0];
-										int numConnectedMembers = (int) serverController.get(new ActualField("CLIENT"), new FormalField(Integer.class))[1];
-										System.out.println("List of connected members : ");
-										String member;
-										for(int i = 0; i < numConnectedMembers; i++) {
-											member = (String) serverController.get(new ActualField("CLIENT"), new FormalField(String.class))[1];
-											System.out.println("- " + member);
-										}
-										/* for(String elem : connectedMembers) {
-											System.out.println("- " + elem);
-										} */
-										break;
-										
-									case "POKEMONS":
-										System.out.println("List of your Pokemons :");
-										for(Pokemon pokemon : profile.getPokemons()) {
-											System.out.println("- Pokemon " + pokemon.getName() + " has abilities :");
-											for(Ability ability : pokemon.getAbilities()) {
-												System.out.println("	- " + ability.getName() + " (" + ability.getElement() + ")");
-											}
-										}
-										break;
-										
-									case "ITEMS":
-										System.out.println("List of your items :");
-										for(Item item : profile.getItems()) {
-											System.out.println("- Item " + item.getName() + " (x" + item.getNumber() + ")");
-										}
+										String connectedMembers_string = (String)serverController.get(new ActualField("CLIENT"), new FormalField(String.class))[1];
+										mainController.put("MEMBERS_ACK", connectedMembers_string);
 										break;
 
 									case "FIGHT":
@@ -117,11 +110,13 @@ public class ClientController implements Runnable {
 										String response = (String) serverController.get(new ActualField("CLIENT"), new FormalField(String.class))[1];
 										if (response.equals("OK")) {
 											serverController.put("SERVER", "OK_ACK");
+											mainController.put("DISCONNECT_ACK", "OK");
 											registered = false;
 											System.out.println("Succesfully disconnected !");
 											status = "CONNECTED TO LOBBY";
 										} else {
 											System.out.println("ERROR : " + action + " FAILED - response : " + response);
+											mainController.put("DISCONNECT_ACK", response);
 										}
 										break;
 								}
@@ -131,6 +126,7 @@ public class ClientController implements Runnable {
 						}
 					} else {
 						System.out.println("Registration failed : " + resp);
+						mainController.put(request + "_ACK", "ERROR");
 					}
 				} catch (InterruptedException e) {
 					System.out.println("Ignored?");
@@ -149,7 +145,7 @@ public class ClientController implements Runnable {
 		}
 	}
 
-	public static void fightHandler(String URI, Profile user) {
+	public void fightHandler(String URI, Profile user) {
 		
 		try {
 			// connecting to action and data spaces
@@ -163,6 +159,7 @@ public class ClientController implements Runnable {
 			String e = (String)actions.get(new ActualField(user.getUsername()), new FormalField(String.class))[1];
 			System.out.println("Received data : " + e);
 			Profile enemy = Profile.fromJson(e);
+			mainController.put("FIGHT_ACK");
 			String action;
 			while(true) {
 				System.out.println("Waiting for action input...");
