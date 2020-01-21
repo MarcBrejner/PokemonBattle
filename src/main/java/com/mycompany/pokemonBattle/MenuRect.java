@@ -45,6 +45,10 @@ class MenuRect implements Menu{
         return buttons.get(selectedIdx).state;
     }
 
+    public void updateForm(String nothing) {
+    	//do not delete this method
+    }
+    
     public void move(String dir) {
         if (dir == "UP") {
             buttons.get(selectedIdx).selected = false;
@@ -90,5 +94,14 @@ class MenuRect implements Menu{
 	public void setButtonText(String txt) {
 		String fix_part = buttons.get(selectedIdx).label.split(":")[0];
     	buttons.get(selectedIdx).label = fix_part + ": " + txt;
+	}
+
+	public void typingHandler(String code, String text, boolean shifted) {
+		//Dont delete this nonsense
+	}
+
+	public String[] getForms() {
+		//ignore and dont delete
+		return null;
 	}
 }

@@ -60,7 +60,11 @@ class MenuList implements Menu {
             //creates list of buttons
             String text = label[0];
             String state = label[1];
-            buttons.add(new Button(gc,x,by,text,state,false));
+            if (state.equals("form") || state.equals("password")) {
+            	buttons.add(new Button(gc,x,by,text,state,false,true,state.equals("password")));
+            } else {
+            	buttons.add(new Button(gc,x,by,text,state,false));
+            }
             by = by + 22;
         }
         
@@ -70,6 +74,43 @@ class MenuList implements Menu {
 
     public String getAction(){
         return buttons.get(selectedIdx).state;
+    }
+    
+    public void updateForm(String newForm) {
+    	buttons.get(selectedIdx).updateForm(newForm);
+    }
+    
+    public String getForm() {
+    	return buttons.get(selectedIdx).form;
+    }
+    
+    public String[] getForms() {
+    	int idx = 0;
+    	String[] forms = new String[50]; //we presume no more than 50 forms
+    	for (Button button: buttons) {
+    		if (button.isForm) {
+    			forms[idx] = button.form;
+    			idx++;
+    		}
+    	}
+    	return forms;
+    }
+    
+    public void typingHandler(String code, String text, boolean shifted) {
+    	Button currentButton = buttons.get(selectedIdx);
+    	if(code == "BACK_SPACE") {
+    		if (currentButton.form != null && currentButton.form.length()>0) {
+    			currentButton.form = currentButton.form.substring(0, currentButton.form.length()-1);
+			}
+    	} else if (text.length()>0) {
+    		if (shifted) {
+    			text = text.toUpperCase();
+    		} else {
+    			text = text.toLowerCase();
+    		}
+    		
+    		currentButton.form += text;
+    	}
     }
     
     public void move(String dir) {

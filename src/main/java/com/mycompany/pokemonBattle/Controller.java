@@ -35,6 +35,7 @@ class Controller {
     }
 
     public void handleKeyboard(String code, String text, boolean isShifted){
+    	//System.out.println(code+", "+text);
     	shifted = isShifted;
         if (code == "ENTER"){
 			if (gameElements.textBoxIsTyping()) {
@@ -46,10 +47,8 @@ class Controller {
 			}
         } else if (code == "UP" || code == "DOWN" || code == "RIGHT" || code == "LEFT"){
             menu.move(code);
-        } else if(code == "CAPS") {
-        	caps = !caps;
-    	} else if (menu.getAction() == "username" || menu.getAction() == "password") {
-        	typingHandler(code, text);
+        } else if (menu.getAction() == "form" || menu.getAction() == "password") {
+        	menu.currentMenu.typingHandler(code, text, shifted);
         }
     }
 
@@ -83,6 +82,9 @@ class Controller {
         		
         	case "signin":
         		// send credentials to the ClientController for authentication
+        		username = menu.currentMenu.getForms()[0];
+        		password = menu.currentMenu.getForms()[1];
+        		System.out.println("Username: "+username+", password: "+password);
 				try {
 					threadedComs.put("CONNECT", username, password);
 					state = "signIn";
@@ -425,48 +427,6 @@ class Controller {
         }
     }
     
-    public void typingHandler(String code, String text) {
-    	if(code == "BACK_SPACE") {
-    		switch(menu.getAction()) {
-    			case "username":
-    				if (username != null && username.length()>0) {
-    					username = username.substring(0, username.length()-1);
-    				}
-    				break;
-    			case "password":
-    				if (password != null && password.length()>0) {
-    					password = password.substring(0, password.length()-1);
-    				}
-    				break;
-    		}
-    	} else if (text.length()>0) {
-    		if (shifted && caps) {
-    			text = text.toLowerCase();
-    		} else if (shifted) {
-    			text = text.toUpperCase();
-    		}
-    		switch(menu.getAction()) {
-    			case "username":
-    				username = username + text;
-    				break;
-    			case "password":
-    				password = password + text;
-    				break;
-    		}
-    	}
-    	switch(menu.getAction()) {
-			case "username":
-				menu.updateCredentialsButton(username);
-				break;
-			case "password":
-				String stars_password = "";
-				for (int i=0; i < password.length(); i++) {
-					stars_password += "*";
-				}
-				menu.updateCredentialsButton(stars_password);
-				break;
-    	}
-    }
 
 	public static Profile getUser() {
 		return user;
