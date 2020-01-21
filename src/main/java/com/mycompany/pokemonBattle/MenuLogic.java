@@ -27,12 +27,16 @@ class MenuLogic {
         
         //Connection menu
         ArrayList<String[]> labelsConnection = new ArrayList<String[]>();
+        labelsConnection.add(new String[]{"Username :", "username"});
+        labelsConnection.add(new String[]{"Password :", "password"});
         labelsConnection.add(new String[]{"Sign in", "signin"});
         labelsConnection.add(new String[]{"Cancel", "welcome"});
         menus.put("connect", new MenuList(gc, 100, 100, labelsConnection));
         
         //Signing-up menu
         ArrayList<String[]> labelsSignup = new ArrayList<String[]>();
+        labelsSignup.add(new String[]{"Username :", "username"});
+        labelsSignup.add(new String[]{"Password :", "password"});
         labelsSignup.add(new String[]{"Submit", "submitSignup"});
         labelsSignup.add(new String[]{"Cancel", "welcome"});
         menus.put("signup", new MenuList(gc, 100, 100, labelsSignup));
@@ -88,5 +92,9 @@ class MenuLogic {
     public void changeMenu(String newMenu) {
     	menuState = newMenu;
     	currentMenu = menus.get(menuState);
+    }
+    
+    public void updateCredentialsButton(String code) {
+    	currentMenu.setButtonText(code);
     }
 }

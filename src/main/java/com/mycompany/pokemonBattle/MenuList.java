@@ -95,4 +95,9 @@ class MenuList implements Menu {
             button.draw();
         }
     }
+    
+    public void setButtonText(String txt) {
+    	String fix_part = buttons.get(selectedIdx).label.split(":")[0];
+    	buttons.get(selectedIdx).label = fix_part + ": " + txt;
+	}
 }
