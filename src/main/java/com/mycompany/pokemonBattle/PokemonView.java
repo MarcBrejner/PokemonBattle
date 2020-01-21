@@ -3,6 +3,7 @@ package com.mycompany.pokemonBattle;
 import javafx.scene.Group;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
 import javafx.animation.FadeTransition;
@@ -26,14 +27,21 @@ class PokemonView {
     boolean shake = false;
     int vx = 0;
     int vy = 0;
+    int scale;
     
-    public PokemonView(Group root, int x, int y, String sprite) {
+    public PokemonView(Group root, int x, int y, String sprite, int scale) {
         this.root = root;
         this.x = x;
         this.y = y;
         this.sprite = sprite;
+        this.scale = scale;
     }
-
+    
+    public void remove() {
+    	System.out.println("removing pokemonView");
+    	root.getChildren().remove(iv);
+    }
+    
     public boolean isRunning(){
         boolean ftBool = false;
         boolean tlBool = false;
@@ -57,6 +65,7 @@ class PokemonView {
         KeyFrame keyFrame1  = new KeyFrame(Duration.millis(1000), wValue1);
         glideTimeline.getKeyFrames().add(keyFrame1);
         glideTimeline.playFromStart();
+        
     }
     
     public void fadeOut() {
@@ -84,6 +93,8 @@ class PokemonView {
             iv = new ImageView();
             iv.setX(x);
             iv.setY(y);
+            iv.setScaleX(scale);
+            iv.setScaleY(scale);
             iv.setImage(image);
             root.getChildren().add(iv);
             
