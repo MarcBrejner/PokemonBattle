@@ -53,7 +53,7 @@ class MenuLogic {
         menus.put("mainMenu", new MenuList(gc, 100, 100, labelsMain));
 
         //menu 1
-        generateAbilityMenu(Controller.getUser().getPokemons().get(0).getAbilities(),menus);
+        //generateAbilityMenu(Controller.getUser().getPokemons().get(0).getAbilities(),menus);
 
 
         //menu 2

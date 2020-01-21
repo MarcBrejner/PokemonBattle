@@ -391,6 +391,7 @@ class Controller {
             case "members":
             	// for now just redirect to the main menu but in the end should display the list of connectedMembers
             	state = "mainMenu";
+            	break;
             
             case "machamp is kil":
             	if (!gameElements.textBoxExists()) {
