@@ -95,6 +95,17 @@ public class Ability{
         return gsonAbility;
 	}
 
+	public void Apply(Pokemon myPokemon, Pokemon enemyPokemon){
+        if(isOnSelf()){
+            myPokemon.setHP(myPokemon.getHP()+selfValue);
+            myPokemon.setStatus(selfStatus);
+        }
+        if(isOnEnemy()){
+            enemyPokemon.setHP(enemyPokemon.getHP()+value);
+            enemyPokemon.setStatus(enemyStatus);
+        }
+    }
+
     public boolean isOnEnemy() {
         return enemy;
     }

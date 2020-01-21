@@ -2,6 +2,7 @@ package com.mycompany.pokemonBattle;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
 
 import javafx.scene.canvas.GraphicsContext;
 
@@ -51,11 +52,7 @@ class MenuLogic {
         menus.put("mainMenu", new MenuList(gc, 100, 100, labelsMain));
 
         //menu 1
-        ArrayList<String[]> labels1 = new ArrayList<String[]>();
-        labels1.add(new String[]{"Attack", "attack"});
-        labels1.add(new String[]{"Duck quack", ""});
-        labels1.add(new String[]{"Back", "mainMenu"});
-        menus.put("inFight", new MenuList(gc, 100, 400, labels1));
+        generateAbilityMenu(Controller.getUser().getPokemons().get(0).getAbilities(),menus);
 
         //menu 2
         ArrayList<String[]> labels2 = new ArrayList<String[]>();
@@ -96,5 +93,13 @@ class MenuLogic {
     
     public void updateCredentialsButton(String code) {
     	currentMenu.setButtonText(code);
+    }
+
+    public void generateAbilityMenu(List<Ability> abilityList, Hashtable<String, Menu> menus){
+            ArrayList<String[]> labels1 = new ArrayList<String[]>();
+            for(int i = 1; i <= Controller.MAX_ABILITY; i++ ){
+                labels1.add(new String[]{abilityList.get(i-1).getName() , "Ability"+i});
+            }
+            menus.put("inFight", new MenuList(gc, 100, 400, labels1));
     }
 }
