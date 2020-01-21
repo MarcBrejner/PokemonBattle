@@ -1,11 +1,16 @@
 package com.mycompany.pokemonBattle;
 
+import javafx.scene.layout.*;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -62,7 +67,7 @@ public class InGame extends Application{
 
 		// Opret canvas for tegning
 		Canvas canvas = new Canvas(sizeX, sizeY);
-
+		
 		// Tilføj canvas til root node
 		root.getChildren().add(canvas);
 
@@ -85,8 +90,9 @@ public class InGame extends Application{
 		scene.setOnKeyPressed(
 				new EventHandler<KeyEvent>() {
 					public void handle(KeyEvent e) {
+						String text = e.getText();
 						String code = e.getCode().toString();
-						controller.handleKeyboard(code);
+						controller.handleKeyboard(code, text, e.isShiftDown());
 					}
 				}
 		);

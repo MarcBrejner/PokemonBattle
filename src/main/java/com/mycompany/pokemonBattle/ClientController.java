@@ -20,8 +20,6 @@ public class ClientController implements Runnable {
 	private SequentialSpace mainController;
 	
 	public ClientController(SequentialSpace mainController) {
-		//this.username = username;
-		//this.password = password;
 		this.mainController = mainController;
 	}
 	
@@ -43,13 +41,6 @@ public class ClientController implements Runnable {
 
 			Boolean connected = true;
 			while(connected) {
-				// Read user name from the console			
-				//System.out.print("Enter your username: ");
-				//username = input.readLine();
-				
-				//System.out.print("Enter your password: ");
-				//password = input.readLine();
-				
 				System.out.println("Waiting for connection credentials from mainController...");
 				Object[] credentials = mainController.get(new FormalField(String.class), new FormalField(String.class), new FormalField(String.class));
 				String request = (String)credentials[0];
@@ -88,7 +79,6 @@ public class ClientController implements Runnable {
 						while(registered) {
 							System.out.println(status);
 							System.out.println("Waiting for an action (MEMBERS, POKEMONS, ITEMS, FIGHT, DISCONNECT) from mainController...");
-							//String action = input.readLine();
 							String action = (String) mainController.get(new FormalField(String.class))[0];
 							if(action.equals("MEMBERS") || action.equals("FIGHT") || action.equals("DISCONNECT") || action.equals("POKEMONS") || action.equals("ITEMS")) {
 								serverController.put("SERVER", action);

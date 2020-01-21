@@ -10,14 +10,17 @@ import org.jspace.SpaceRepository;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import javafx.scene.control.*;
+
 class Controller {
 
     public String state;
     public SequentialSpace threadedComs;
     public SpaceRepository localRepository;
-    //public static String username;
     public MenuLogic menu;
     public Profile user;
+    String username = "", password = "";
+    boolean shifted = false, caps = false;
 
     GameElements gameElements;
 
@@ -30,17 +33,22 @@ class Controller {
         new Thread(new ClientController(threadedComs)).start();
     }
 
-    public void handleKeyboard(String code){
+    public void handleKeyboard(String code, String text, boolean isShifted){
+    	shifted = isShifted;
         if (code == "ENTER"){
             performAction(menu.getAction());
-        } else {
+        } else if (code == "UP" || code == "DOWN" || code == "RIGHT" || code == "LEFT"){
             menu.move(code);
+        } else if(code == "CAPS") {
+        	caps = !caps;
+    	} else if (menu.getAction() == "username" || menu.getAction() == "password") {
+        	typingHandler(code, text);
         }
     }
 
     public void performAction(String action){
     	System.out.println("ACTION : " + action);
-    	String username, password;
+    	
         switch (action) {
 	        case "welcome":
 	        	menu.changeMenu("welcome");
@@ -68,10 +76,7 @@ class Controller {
         		break;
         		
         	case "signin":
-        		// need to retrieve data of username and password fields on connection page
-        		username = "vincent";
-        		password = "password";
-        		// then send them to the ClientController for authentication
+        		// send credentials to the ClientController for authentication
 				try {
 					threadedComs.put("CONNECT", username, password);
 					state = "signIn";
@@ -82,10 +87,7 @@ class Controller {
         		break;
         		
         	case "submitSignup":
-        		// need to retrieve data of username and password fields on sign-up page
-        		username = "Jason";
-        		password = "password";
-        		// then send them to the ClientController for authentication
+        		// send credentials to the ClientController for creation
 				try {
 					threadedComs.put("SIGNUP", username, password);
 					state = "submittedSignUp";
@@ -162,6 +164,7 @@ class Controller {
     public void stateHandler(){
         switch (state) {
         	case "welcome":
+        		
         		menu.draw();
         		break;
         		
@@ -273,6 +276,47 @@ class Controller {
             	break;
         }
     }
-
-
+    
+    public void typingHandler(String code, String text) {
+    	if(code == "BACK_SPACE") {
+    		switch(menu.getAction()) {
+    			case "username":
+    				if (username != null && username.length()>0) {
+    					username = username.substring(0, username.length()-1);
+    				}
+    				break;
+    			case "password":
+    				if (password != null && password.length()>0) {
+    					password = password.substring(0, password.length()-1);
+    				}
+    				break;
+    		}
+    	} else if (text.length()>0) {
+    		if (shifted && caps) {
+    			text = text.toLowerCase();
+    		} else if (shifted) {
+    			text = text.toUpperCase();
+    		}
+    		switch(menu.getAction()) {
+    			case "username":
+    				username = username + text;
+    				break;
+    			case "password":
+    				password = password + text;
+    				break;
+    		}
+    	}
+    	switch(menu.getAction()) {
+			case "username":
+				menu.updateCredentialsButton(username);
+				break;
+			case "password":
+				String stars_password = "";
+				for (int i=0; i < password.length(); i++) {
+					stars_password += "*";
+				}
+				menu.updateCredentialsButton(stars_password);
+				break;
+    	}
+    }
 }
