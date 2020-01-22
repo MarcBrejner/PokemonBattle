@@ -15,7 +15,7 @@ public class FightHandler {
     public Profile user;
     public String URI;
     public SequentialSpace threadedComs;
-    private boolean turn = false;
+    private boolean fighting = true;
 
 
     public FightHandler(Profile user, String URI, SequentialSpace threadedComs) throws InterruptedException, IOException {
@@ -43,43 +43,21 @@ public class FightHandler {
             me = user;
 
 
-            while (true) {
+            while (fighting) {
 
-
-                retrievePokemons();
-
-                //Draw pokemon
-
-
-                System.out.println("Waiting for action input...");
-                action = (String) actions.get(new FormalField(String.class), new ActualField(me.getUsername()))[0];
-                System.out.println("ACTION RECEIVED : " + action);
-
-                if (action.equals("BYE")) {
-                    actions.put("BYE_ACK");
-                    actions.put("END");
-                    break;
-                } else if (action.equals("START")) {
-                    System.out.println("THE FIGHT CAN START !");
-                } else if (action.equals("GO")) {
-                    System.out.println("YOUR TURN");
-                } else if (action.equals("ENEMYGO")) {
-                    System.out.println("ENEMYS TURN");
-                }
-
-                System.out.println("Select action");
-                Object t[] = threadedComs.get(new FormalField(String.class), new FormalField(String.class));
-
-                switch ((String) t[0]) {
-                    case "ABILITY":
-                        Ability chosenAbility = Ability.fromJson((String) t[1]);
-                        chosenAbility.Apply(myPokemon, enemyPokemon);
+                Object[] serverResponse = actions.get(new ActualField(me.getUsername()),new FormalField(String.class));
+                switch((String) serverResponse[1]){
+                    case "GO":
+                        actions.put(me.getUsername(),"placeHolderActionType","PlaceHolderAction");
                         break;
-                    case "ITEM":
-                        Item chosenItem = Item.fromJson((String) t[1]);
+                    case "DC":
+                        fighting = false;
+                        System.out.println("Opponent disconnected");
+                        break;
+                    case "END":
+                        System.out.println("Match has ended");
+                        break;
                 }
-
-                updatePokemons();
 
             }
 
@@ -98,11 +76,6 @@ public class FightHandler {
     public void retrievePokemons() throws InterruptedException{
         myPokemon = Pokemon.fromJson((String) data.get(new FormalField(String.class), new ActualField(me.getUsername()))[0]);
         enemyPokemon = Pokemon.fromJson((String) data.get(new FormalField(String.class), new ActualField(enemy.getUsername()))[0]);
-    }
-
-    public void updatePokemons() throws InterruptedException{
-        data.put(Pokemon.toJson(myPokemon),me.getUsername());
-        data.put(Pokemon.toJson(enemyPokemon),enemy.getUsername());
     }
 
     public Pokemon getMyPokemon(){

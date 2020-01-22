@@ -274,6 +274,7 @@ class Fight implements Runnable {
 			while(true){
 
 				//Receive and process action of player 1.
+				actions.put(fighter1.getUsername(),"GO");
 				Object[] fighterOneAction = actions.get(new ActualField(fighter1.getUsername()),new FormalField(String.class),new FormalField(String.class));
 				processAction(fighterOneAction,1);
 
@@ -288,6 +289,7 @@ class Fight implements Runnable {
 				updatePokemons();
 
 				//Receive and process action of player 2.
+				actions.put(fighter2.getUsername(),"GO");
 				Object[] fighterTwoAction = actions.get(new ActualField(fighter1.getUsername()),new FormalField(String.class),new FormalField(String.class));
 				processAction(fighterTwoAction,2);
 
@@ -344,11 +346,6 @@ class Fight implements Runnable {
 		//Update fighter ones local pokemon
 		data.put(Pokemon.toJson(fighterOnePokemon),fighter1.getUsername());
 		data.put(Pokemon.toJson(fighterTwoPokemon),fighter2.getUsername());
-
-		//Update fighter twos local pokemon
-		data.put(Pokemon.toJson(fighterOnePokemon),fighter1.getUsername());
-		data.put(Pokemon.toJson(fighterTwoPokemon),fighter2.getUsername());
-
 
 	}
 
