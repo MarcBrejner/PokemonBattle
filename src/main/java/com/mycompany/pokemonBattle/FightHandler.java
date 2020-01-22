@@ -43,11 +43,10 @@ public class FightHandler {
             me = user;
 
             while (fighting) {
-
                 Object[] serverResponse = actions.get(new ActualField(me.getUsername()),new FormalField(String.class),new FormalField(Integer.class));
                 switch((String) serverResponse[1]){
                     case "GO":
-                        actions.put(me.getUsername(),"placeHolderActionType","PlaceHolderAction");
+                        actions.put(me.getUsername(),"PlaceHolderAbility","PlaceHolderAction");
                         break;
                     case "DC":
                         fighting = false;

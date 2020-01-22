@@ -22,6 +22,7 @@ class Controller {
     String username = "", password = "";
     boolean shifted = false, caps = false;
     public static final int MAX_ABILITY = 4;
+    public String selectedAbility = "";
 
     GameElements gameElements;
 
@@ -185,6 +186,45 @@ class Controller {
             case "does not matter":
             	state = "preFightAnimation1";
             	menu.changeMenu("inFight");
+            	break;
+            	
+            case "ability1":
+				try {
+					threadedComs.put("Outgoing","ability1");
+					state = "not your turn";
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+            	break;
+            case "ability2":
+            	try {
+					threadedComs.put("Outgoing","ability2");
+					state = "not your turn";
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+            	break;
+            case "ability3":
+            	try {
+					threadedComs.put("Outgoing","ability3");
+					state = "not your turn";
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+            	break;
+            case "ability4":
+            	try {
+					threadedComs.put("Outgoing","ability4");
+					state = "not your turn";
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+            	break;
+            
         }
     }
 
@@ -316,11 +356,36 @@ class Controller {
             case "waitingForSplash":
                 if (!InGame.splashScreen.isDrawing()) {
                     //wait until splash animation is over
-                    state = "fightIntro";
+                    state = "waitingForSplashAgain";
+                    InGame.splashScreen.draw();
+                }
+                break;
+                
+            case "waitingForSplashAgain":
+            	if (!InGame.splashScreen.isDrawing()) {
+                    //wait until splash animation is over
+                    state = "not your turn";
+                    menu.changeMenu("4abilities");
                 }
                 break;
 
-            case "fightIntro":
+            case "your turn":
+            	menu.draw();
+            	break;
+                
+            case "not your turn":
+            	System.out.println("Not your turn...");
+    			try {
+    				threadedComs.get(new ActualField("Excuse me sire, it is their turn"));
+    			} catch (InterruptedException e) {
+    				// TODO Auto-generated catch block
+    				e.printStackTrace();
+    			}
+    			System.out.println("Your turn...");
+    			state = "your turn";
+            	break;
+                
+            case "fightIntroTEMP":
                 InGame.splashScreen.draw();
                 gameElements.draw();
                 gameElements.trainer1View.glide(100);
@@ -440,5 +505,13 @@ class Controller {
 
 	public static Profile getUser() {
 		return user;
+	}
+	
+	public void setPokemon(int number, Pokemon pokemon) {
+		if (number == 1) {
+			gameElements.pokemon1.setHP(pokemon.getHP());
+		} else {
+			gameElements.pokemon2.setHP(pokemon.getHP());
+		}
 	}
 }

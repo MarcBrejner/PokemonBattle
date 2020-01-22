@@ -276,6 +276,9 @@ class Fight implements Runnable {
 				//Receive and process action of player 1.
 				actions.put(fighter1.getUsername(),"GO",0);
 				Object[] fighterOneAction = actions.get(new ActualField(fighter1.getUsername()),new FormalField(String.class),new FormalField(String.class));
+				System.out.println("Got action from player 1: "+(String) fighterOneAction[2]);
+
+				/*
 				processAction(fighterOneAction,1);
 
 				//Check if any pokemon has HP <= 0 and end game if so.
@@ -287,11 +290,15 @@ class Fight implements Runnable {
 
 				//Update the local pokemon of the clients
 				updatePokemons();
+				*/
 
 				//Receive and process action of player 2.
-				actions.put(fighter2.getUsername(),"GO",0);
-				Object[] fighterTwoAction = actions.get(new ActualField(fighter1.getUsername()),new FormalField(String.class),new FormalField(String.class));
+				actions.put(fighter2.getUsername(),"GO");
+				Object[] fighterTwoAction = actions.get(new ActualField(fighter2.getUsername()),new FormalField(String.class),new FormalField(String.class));
+				System.out.println("Got action from player 2: "+(String) fighterTwoAction[2]);
+				/*
 				processAction(fighterTwoAction,2);
+
 
 				//Check if any pokemon has HP <= 0 and end game if so.
 				if(fighterOnePokemon.getHP() <= 0){
@@ -302,18 +309,19 @@ class Fight implements Runnable {
 
 				//Update the local pokemon of the clients
 				updatePokemons();
-
+				*/
 
 			}
 
 
-			System.out.println("START put");
+			/*System.out.println("START put");
 			actions.get(new ActualField("END"));
 
 			System.out.println("Fight " + fightURI + " ended !");
 			repository.remove(fightURI + "/actions");
 			repository.remove(fightURI + "/data");
 			System.out.println("Removed actions and data spaces of " + fightURI);
+			*/
 
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
@@ -332,12 +340,15 @@ class Fight implements Runnable {
 				break;
 			case("ITEM"):
 				rcvItem = Item.fromJson((String) fighterAction[2]);
+				System.out.println("Ignoring rcvItem.apply");
 				if(fighterNumber == 1){
-					rcvItem.Apply(fighterOnePokemon);
+					//rcvItem.Apply(fighterOnePokemon);
 				}else{
-					rcvItem.Apply(fighterOnePokemon);}
+					//rcvItem.Apply(fighterOnePokemon);
+				}
 				break;
 			case("BYE"):
+				//nothing
 		}
 	}
 

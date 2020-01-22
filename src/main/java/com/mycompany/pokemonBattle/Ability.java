@@ -91,7 +91,7 @@ public class Ability{
     public static Ability fromJson(String json){
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.create();
-        Ability gsonAbility = gson.fromJson(json, Ability.class);
+        Ability gsonAbility = gson.fromJson(json, Ability.class); //this results in an error
         return gsonAbility;
 	}
 
