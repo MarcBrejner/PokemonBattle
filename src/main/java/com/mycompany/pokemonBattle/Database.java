@@ -19,7 +19,7 @@ public class Database {
 	public static void main(String[] args) {
 		Database database = new Database("pokemonGame", "root", Config.db_password);
 		
-		Profile p1 = database.getProfile("vincent");
+		//Profile p1 = database.getProfile("vincent");
 		//Profile p2 = database.getProfile("franck");
 		//database.authenticate("vincent", "password");
 		//database.changePassword("vincent", "pwd");
