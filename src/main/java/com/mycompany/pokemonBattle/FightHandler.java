@@ -44,7 +44,6 @@ public class FightHandler {
 
 
             while (fighting) {
-
                 Object[] serverResponse = actions.get(new ActualField(me.getUsername()),new FormalField(String.class));
                 switch((String) serverResponse[1]){
                     case "GO":

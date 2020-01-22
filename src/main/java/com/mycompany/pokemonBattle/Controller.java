@@ -22,6 +22,7 @@ class Controller {
     String username = "", password = "";
     boolean shifted = false, caps = false;
     public static final int MAX_ABILITY = 4;
+    public String selectedAbility = "";
 
     GameElements gameElements;
 
@@ -185,6 +186,25 @@ class Controller {
             case "does not matter":
             	state = "preFightAnimation1";
             	menu.changeMenu("inFight");
+            	break;
+            	
+            case "ability1":
+            	selectedAbility = "ability1";
+            	System.out.println("Selected ability: "+selectedAbility);
+            	break;
+            case "ability2":
+            	selectedAbility = "ability2";
+            	System.out.println("Selected ability: "+selectedAbility);
+            	break;
+            case "ability3":
+            	selectedAbility = "ability3";
+            	System.out.println("Selected ability: "+selectedAbility);
+            	break;
+            case "ability4":
+            	selectedAbility = "ability4";
+            	System.out.println("Selected ability: "+selectedAbility);
+            	break;
+            
         }
     }
 
@@ -317,10 +337,16 @@ class Controller {
                 if (!InGame.splashScreen.isDrawing()) {
                     //wait until splash animation is over
                     state = "fightIntro";
+                    menu.changeMenu("4abilities");
+                    InGame.splashScreen.draw();
                 }
                 break;
 
             case "fightIntro":
+            	menu.draw();
+            	break;
+                
+            case "fightIntroTEMP":
                 InGame.splashScreen.draw();
                 gameElements.draw();
                 gameElements.trainer1View.glide(100);
