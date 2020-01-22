@@ -467,4 +467,12 @@ class Controller {
 	public static Profile getUser() {
 		return user;
 	}
+	
+	public void setPokemon(int number, Pokemon pokemon) {
+		if (number == 1) {
+			gameElements.pokemon1.setHP(pokemon.getHP());
+		} else {
+			gameElements.pokemon2.setHP(pokemon.getHP());
+		}
+	}
 }

@@ -47,7 +47,7 @@ public class FightHandler {
                 Object[] serverResponse = actions.get(new ActualField(me.getUsername()),new FormalField(String.class));
                 switch((String) serverResponse[1]){
                     case "GO":
-                        actions.put(me.getUsername(),"placeHolderActionType","PlaceHolderAction");
+                        actions.put(me.getUsername(),"PlaceHolderAbility","PlaceHolderAction");
                         break;
                     case "DC":
                         fighting = false;
