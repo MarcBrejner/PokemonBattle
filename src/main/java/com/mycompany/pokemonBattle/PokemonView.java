@@ -65,7 +65,6 @@ class PokemonView {
         KeyFrame keyFrame1  = new KeyFrame(Duration.millis(1000), wValue1);
         glideTimeline.getKeyFrames().add(keyFrame1);
         glideTimeline.playFromStart();
-        
     }
     
     public void fadeOut() {

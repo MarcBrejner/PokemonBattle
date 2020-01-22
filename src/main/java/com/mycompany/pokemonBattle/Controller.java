@@ -324,9 +324,6 @@ class Controller {
                 InGame.splashScreen.draw();
                 gameElements.draw();
                 gameElements.trainer1View.glide(100);
-                gameElements.trainer1View.glide(500);
-                gameElements.createTextBox(50, 300, "Oh geez thats an opponent trainer");
-               
                 gameElements.trainer2View.glide(450);
                 String[] fightIntroTexts = new String[] {
                 		"You: Oh geez thats Fanya, my russian friend",
