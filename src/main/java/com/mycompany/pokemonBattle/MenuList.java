@@ -45,7 +45,8 @@ import org.jspace.SpaceRepository;
 
 
 class MenuList implements Menu {
-    int x, y, selectedIdx;
+    int x, y;
+    int selectedIdx;
     GraphicsContext gc;
     ArrayList<Button> buttons;
     

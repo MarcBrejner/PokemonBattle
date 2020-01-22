@@ -47,6 +47,8 @@ class Controller {
 			}
         } else if (code == "UP" || code == "DOWN" || code == "RIGHT" || code == "LEFT"){
             menu.move(code);
+        } else if (code == "TAB") {
+        	menu.move("DOWN");
         } else if (menu.getAction() == "form" || menu.getAction() == "password") {
         	menu.currentMenu.typingHandler(code, text, shifted);
         }
@@ -68,6 +70,14 @@ class Controller {
         	case "signup":
         		menu.changeMenu("signup");
         		state = "signup";
+        		break;
+        		
+        	case "form":
+        		menu.move("DOWN");
+        		break;
+        	
+        	case "password":
+        		menu.move("DOWN");
         		break;
         		
         	case "disconnect":
