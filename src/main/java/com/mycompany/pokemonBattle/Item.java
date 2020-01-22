@@ -70,5 +70,9 @@ public class Item {
 		value = 50;
 	}
 
+	public void Apply(Pokemon target){
+		target.setHP(target.getHP()+value);
+	}
+
 }
 

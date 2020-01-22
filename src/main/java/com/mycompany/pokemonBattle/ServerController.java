@@ -235,6 +235,9 @@ class Fight implements Runnable {
 	String fightURI;
 	Database database;
 	Profile fighter1, fighter2;
+	Ability rcvAbility;
+	Item rcvItem;
+	Pokemon fighterOnePokemon, fighterTwoPokemon;
 
 	public Fight(String fightURI, SpaceRepository repository, SequentialSpace actions, SequentialSpace data, Database database, String fighter1, String fighter2) {
 		this.database = database;
@@ -254,14 +257,53 @@ class Fight implements Runnable {
 			actions.put(fighter1.getUsername(), Profile.toJson(fighter2));
 			actions.put(fighter2.getUsername(), Profile.toJson(fighter1));
 
+
+
+			//Initialize pokemon
 			data.put(Pokemon.toJson(new Pokemon("Pikachu")),fighter1);
 			data.put(Pokemon.toJson(new Pokemon("Pikachu")),fighter1);
 
 			data.put(Pokemon.toJson(new Pokemon("Pikachu")),fighter2);
 			data.put(Pokemon.toJson(new Pokemon("Pikachu")),fighter2);
 
+			/*
 			actions.put("START",fighter1.getUsername());
 			actions.put("ENEMYGO",fighter2.getUsername());
+			*/
+
+			while(true){
+
+				//Receive and process action of player 1.
+				Object[] fighterOneAction = actions.get(new ActualField(fighter1.getUsername()),new FormalField(String.class),new FormalField(String.class));
+				processAction(fighterOneAction,1);
+
+				//Check if any pokemon has HP <= 0 and end game if so.
+				if(fighterOnePokemon.getHP() <= 0){
+					break;
+				}else if(fighterTwoPokemon.getHP() <= 0){
+					break;
+				}
+
+				//Update the local pokemon of the clients
+				updatePokemons();
+
+				//Receive and process action of player 2.
+				Object[] fighterTwoAction = actions.get(new ActualField(fighter1.getUsername()),new FormalField(String.class),new FormalField(String.class));
+				processAction(fighterTwoAction,2);
+
+				//Check if any pokemon has HP <= 0 and end game if so.
+				if(fighterOnePokemon.getHP() <= 0){
+					break;
+				}else if(fighterTwoPokemon.getHP() <= 0){
+					break;
+				}
+
+				//Update the local pokemon of the clients
+				updatePokemons();
+
+
+			}
+
 
 			System.out.println("START put");
 			actions.get(new ActualField("END"));
@@ -276,4 +318,39 @@ class Fight implements Runnable {
 			e.printStackTrace();
 		}
 	}
+
+	private void processAction(Object[] fighterAction, int fighterNumber){
+		switch((String) fighterAction[1]){
+			case("ABILITY"):
+				rcvAbility = Ability.fromJson((String) fighterAction[2]);
+				if(fighterNumber == 1){
+					rcvAbility.Apply(fighterOnePokemon,fighterTwoPokemon);
+				}else{
+					rcvAbility.Apply(fighterTwoPokemon,fighterOnePokemon);}
+				break;
+			case("ITEM"):
+				rcvItem = Item.fromJson((String) fighterAction[2]);
+				if(fighterNumber == 1){
+					rcvItem.Apply(fighterOnePokemon);
+				}else{
+					rcvItem.Apply(fighterOnePokemon);}
+				break;
+			case("BYE"):
+		}
+	}
+
+
+	public void updatePokemons() throws InterruptedException{
+		//Update fighter ones local pokemon
+		data.put(Pokemon.toJson(fighterOnePokemon),fighter1.getUsername());
+		data.put(Pokemon.toJson(fighterTwoPokemon),fighter2.getUsername());
+
+		//Update fighter twos local pokemon
+		data.put(Pokemon.toJson(fighterOnePokemon),fighter1.getUsername());
+		data.put(Pokemon.toJson(fighterTwoPokemon),fighter2.getUsername());
+
+
+	}
+
+
 }
