@@ -189,20 +189,40 @@ class Controller {
             	break;
             	
             case "ability1":
-            	selectedAbility = "ability1";
-            	System.out.println("Selected ability: "+selectedAbility);
+				try {
+					threadedComs.put("Outgoing","ability1");
+					state = "not your turn";
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
             	break;
             case "ability2":
-            	selectedAbility = "ability2";
-            	System.out.println("Selected ability: "+selectedAbility);
+            	try {
+					threadedComs.put("Outgoing","ability2");
+					state = "not your turn";
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
             	break;
             case "ability3":
-            	selectedAbility = "ability3";
-            	System.out.println("Selected ability: "+selectedAbility);
+            	try {
+					threadedComs.put("Outgoing","ability3");
+					state = "not your turn";
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
             	break;
             case "ability4":
-            	selectedAbility = "ability4";
-            	System.out.println("Selected ability: "+selectedAbility);
+            	try {
+					threadedComs.put("Outgoing","ability4");
+					state = "not your turn";
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
             	break;
             
         }
@@ -336,14 +356,33 @@ class Controller {
             case "waitingForSplash":
                 if (!InGame.splashScreen.isDrawing()) {
                     //wait until splash animation is over
-                    state = "fightIntro";
-                    menu.changeMenu("4abilities");
+                    state = "waitingForSplashAgain";
                     InGame.splashScreen.draw();
                 }
                 break;
+                
+            case "waitingForSplashAgain":
+            	if (!InGame.splashScreen.isDrawing()) {
+                    //wait until splash animation is over
+                    state = "not your turn";
+                    menu.changeMenu("4abilities");
+                }
+                break;
 
-            case "fightIntro":
+            case "your turn":
             	menu.draw();
+            	break;
+                
+            case "not your turn":
+            	System.out.println("Not your turn...");
+    			try {
+    				threadedComs.get(new ActualField("Excuse me sire, it is their turn"));
+    			} catch (InterruptedException e) {
+    				// TODO Auto-generated catch block
+    				e.printStackTrace();
+    			}
+    			System.out.println("Your turn...");
+    			state = "your turn";
             	break;
                 
             case "fightIntroTEMP":
