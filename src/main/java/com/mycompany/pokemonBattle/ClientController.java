@@ -4,15 +4,10 @@ import org.jspace.ActualField;
 import org.jspace.FormalField;
 import org.jspace.RemoteSpace;
 import org.jspace.SequentialSpace;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 
 public class ClientController implements Runnable {
 	
@@ -26,11 +21,7 @@ public class ClientController implements Runnable {
 	public void run() {
 
 		try {
-			
-			BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
-
 			// Set the URI of the chat space
-			
 			// Default value
 			String lobbyUri = "tcp://"+ Config.serverHost +"/lobby?keep";
 			
@@ -80,9 +71,24 @@ public class ClientController implements Runnable {
 							System.out.println(status);
 							System.out.println("Waiting for an action (MEMBERS, POKEMONS, ITEMS, FIGHT, DISCONNECT) from mainController...");
 							String action = (String) mainController.get(new FormalField(String.class))[0];
-							if(action.equals("MEMBERS") || action.equals("FIGHT") || action.equals("DISCONNECT") || action.equals("POKEMONS") || action.equals("ITEMS")) {
+							if (action.equals("GET_PROFILE")
+								|| action.equals("MEMBERS")
+								|| action.equals("FIGHT")
+								|| action.equals("DISCONNECT")
+								|| action.equals("POKEMONS")
+								|| action.equals("ITEMS")
+								|| action.equals("USER_LEVEL_UP")
+								|| action.equals("POKEMON_LEVEL_UP")
+									){
 								serverController.put("SERVER", action);
+								String response;
 								switch(action){
+									case "GET_PROFILE":
+										String profile_string = (String)serverController.get(new ActualField("CLIENT"), new FormalField(String.class))[1];
+										mainController.put("GET_PROFILE_ACK", profile_string);
+										profile = Profile.fromJson(profile_string);
+										break;
+										
 									case "MEMBERS":
 										String connectedMembers_string = (String)serverController.get(new ActualField("CLIENT"), new FormalField(String.class))[1];
 										mainController.put("MEMBERS_ACK", connectedMembers_string);
@@ -95,9 +101,31 @@ public class ClientController implements Runnable {
 										fightHandler(fightURI, profile);
 										System.out.println("Fight has ended !");
 										break;
+										
+									case "USER_LEVEL_UP":
+										response = (String)serverController.get(new ActualField("CLIENT"), new FormalField(String.class))[1];
+										if (response.equals("OK")) {
+											mainController.put("USER_LEVEL_UP_ACK", "OK");
+											Object[] elem = serverController.get(new ActualField("CLIENT"), new FormalField(String.class), new FormalField(String.class));
+											mainController.put("USER_LEVEL_UP_ACK", elem[1], elem[2]);
+										} else {
+											mainController.put("USER_LEVEL_UP_ACK", response);
+										}
+										break;
+										
+									case "POKEMON_LEVEL_UP":
+										response = (String)serverController.get(new ActualField("CLIENT"), new FormalField(String.class))[1];
+										if (response.equals("OK")) {
+											mainController.put("POKEMON_LEVEL_UP_ACK", "OK");
+											Object[] obj = serverController.get(new ActualField("CLIENT"), new FormalField(Integer.class), new FormalField(String.class), new FormalField(String.class));
+											mainController.put("POKEMON_LEVEL_UP_ACK", (int)obj[1], (String)obj[2], (String)obj[3]);
+										} else {
+											mainController.put("POKEMON_LEVEL_UP_ACK", response);
+										}
+										break;
 
 									case "DISCONNECT":
-										String response = (String) serverController.get(new ActualField("CLIENT"), new FormalField(String.class))[1];
+										response = (String) serverController.get(new ActualField("CLIENT"), new FormalField(String.class))[1];
 										if (response.equals("OK")) {
 											serverController.put("SERVER", "OK_ACK");
 											mainController.put("DISCONNECT_ACK", "OK");
@@ -162,7 +190,7 @@ public class ClientController implements Runnable {
 				} else if(action.equals("START")) {
 					System.out.println("THE FIGHT CAN START !");
 				} else {
-					// depending on the action different types of data and behaviours can occur
+					// depending on the action different types of data and behaviors can occur
 					System.out.println("Waiting to receive data...");
 					String data_received = (String)data.get(new FormalField(String.class))[0];
 					System.out.println("DATA : " + data_received);

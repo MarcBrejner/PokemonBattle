@@ -1,6 +1,8 @@
 package com.mycompany.pokemonBattle;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.jspace.ActualField;
 import org.jspace.FormalField;
@@ -9,8 +11,6 @@ import org.jspace.SpaceRepository;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
-import javafx.scene.control.*;
 
 class Controller {
 
@@ -199,7 +199,6 @@ class Controller {
     	int tby = 500;
         switch (state) {
         	case "welcome":
-        		
         		menu.draw();
         		break;
         		
@@ -304,8 +303,6 @@ class Controller {
 				}
 				break;
 
-
-
             case "waitingForOtherPlayer":
             	// Maybe add a loading screen here ?
                 //get from tuple space...
@@ -359,8 +356,6 @@ class Controller {
             		state = "preFightAnimation3";
             	}
             	break;
-            	
-        
             
             case "preFightAnimation3":
             	if (!gameElements.textBoxExists()) {
@@ -434,8 +429,101 @@ class Controller {
         }
     }
     
+    // function to call at the end of a fight, after the profile has been updated
+    public void checkProfileStatus() {
+		int XP = user.getXP(), rXP = user.getRequiredXP();
+		while(XP >= rXP) {
+			try {
+				threadedComs.put("USER_LEVEL_UP");
+				String ack = (String)threadedComs.get(new ActualField("USER_LEVEL_UP_ACK"), new FormalField(String.class))[1];
+				if (ack.equals("OK")) {
+					user.setLevel(user.getLevel()+1);
+					XP = XP - rXP;
+					rXP = user.getLevel()*4;
+					user.setXP(XP);
+					user.setRequiredXP(rXP);
+					// receive Pokemon and list of Pokemons from ClientController
+					Object[] elems = threadedComs.get(new ActualField("USER_LEVEL_UP_ACK"), new FormalField(String.class), new FormalField(String.class));
+					Pokemon new_pokemon = Pokemon.fromJson((String)elems[1]);
+					GsonBuilder builder = new GsonBuilder();
+			        Gson gson = builder.create();
+					Pokemon[] p_table = gson.fromJson((String)elems[2], Pokemon[].class);
+					// update user's list of pokemons
+					user.setPokemons(new ArrayList<>(Arrays.asList(p_table)));
+					// TODO : some display of the events
+					System.out.println("[!] Received new pokemon : "+new_pokemon.getName());
+				} else {
+					System.out.println("An error occured for request 'USER_LEVEL_UP' : " + ack);
+					// if action is forbidden, we synchronize with the server to get the right value
+					if (ack.equals("Forbidden")) {
+						refreshUser();
+						break;
+					}
+				}
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+    
+    // function to call at the end of a fight, after the profile has been updated
+    public void checkPokemonStatus() {
+    	List<Pokemon> list_pokemons = user.getPokemons();
+    	boolean failed = false;
+		for(Pokemon p : list_pokemons) {
+			int xp = p.getXP(), rXp = p.getRequiredXP();
+			while(xp >= rXp) {
+				try {
+					threadedComs.put("POKEMON_LEVEL_UP");
+					String ack = (String)threadedComs.get(new ActualField("POKEMON_LEVEL_UP_ACK"), new FormalField(String.class))[1];
+					if (ack.equals("OK")) {
+						Object[] elem = threadedComs.get(new ActualField("POKEMON_LEVEL_UP_ACK"), new FormalField(Integer.class), new FormalField(String.class), new FormalField(String.class));
+						if((int)elem[1] == p.id) {
+							p.setLevel(p.getLevel()+1);
+							xp = xp - rXp;
+							rXp = p.getLevel()*2;
+							p.setXP(xp);
+							p.setRequiredXP(rXp);
+							// receive Ability and list of Abilities from ClientController
+							Ability new_ability = Ability.fromJson((String)elem[2]);
+							GsonBuilder builder = new GsonBuilder();
+					        Gson gson = builder.create();
+					        Ability[] a_table = gson.fromJson((String)elem[3], Ability[].class);
+					        // update pokemon's list of abilities
+							p.setAbilities(new ArrayList<>(Arrays.asList(a_table)));
+							// TODO : some display of the events
+							System.out.println("[!] Pokemon " + p.getName() + " received new ability : "+new_ability.getName());
+						} else {
+							System.out.println("Error : received an ability for another pokemon.");
+							failed = true;
+						}
+					} else {
+						System.out.println("An error occured for request 'POKEMON_LEVEL_UP' on pokemon " + p.getName() + " : " + ack);
+						// if action is forbidden, we synchronize with the server to get the right value
+						if (ack.equals("Forbidden")) {
+							failed = true;
+							break;
+						}
+					}
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		if (failed) refreshUser();
+	}
 
 	public static Profile getUser() {
 		return user;
+	}
+	
+	public void refreshUser() {
+		try {
+			threadedComs.put("GET_PROFILE");
+			String profile_string = (String)threadedComs.get(new ActualField("GET_PROFILE_ACK"), new FormalField(String.class))[1];
+			user = Profile.fromJson(profile_string);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 }
