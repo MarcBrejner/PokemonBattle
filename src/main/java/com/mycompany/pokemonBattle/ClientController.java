@@ -92,7 +92,7 @@ public class ClientController implements Runnable {
 										System.out.println("Looking for an opponent...");
 										String fightURI = (String)serverController.get(new ActualField("CLIENT"), new FormalField(String.class))[1];
 										System.out.println("Got a fight ! At " + fightURI);
-										fightHandler(fightURI, profile);
+										new FightHandler(profile, fightURI);
 										System.out.println("Fight has ended !");
 										break;
 
@@ -134,7 +134,7 @@ public class ClientController implements Runnable {
 			e1.printStackTrace();
 		}
 	}
-
+	/*
 	public void fightHandler(String URI, Profile user) {
 		
 		try {
@@ -190,4 +190,5 @@ public class ClientController implements Runnable {
 			e.printStackTrace();
 		}
 	}
+	*/
 }

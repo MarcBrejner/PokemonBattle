@@ -274,7 +274,7 @@ class Fight implements Runnable {
 			while(true){
 
 				//Receive and process action of player 1.
-				actions.put(fighter1.getUsername(),"GO");
+				actions.put(fighter1.getUsername(),"GO",0);
 				Object[] fighterOneAction = actions.get(new ActualField(fighter1.getUsername()),new FormalField(String.class),new FormalField(String.class));
 				processAction(fighterOneAction,1);
 
@@ -289,7 +289,7 @@ class Fight implements Runnable {
 				updatePokemons();
 
 				//Receive and process action of player 2.
-				actions.put(fighter2.getUsername(),"GO");
+				actions.put(fighter2.getUsername(),"GO",0);
 				Object[] fighterTwoAction = actions.get(new ActualField(fighter1.getUsername()),new FormalField(String.class),new FormalField(String.class));
 				processAction(fighterTwoAction,2);
 

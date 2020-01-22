@@ -18,7 +18,7 @@ public class FightHandler {
     private boolean fighting = true;
 
 
-    public FightHandler(Profile user, String URI, SequentialSpace threadedComs) throws InterruptedException, IOException {
+    public FightHandler(Profile user, String URI) throws InterruptedException, IOException {
         this.user = user;
         this.URI = URI;
         this.threadedComs = threadedComs;
@@ -42,10 +42,9 @@ public class FightHandler {
             enemy = Profile.fromJson(e);
             me = user;
 
-
             while (fighting) {
 
-                Object[] serverResponse = actions.get(new ActualField(me.getUsername()),new FormalField(String.class));
+                Object[] serverResponse = actions.get(new ActualField(me.getUsername()),new FormalField(String.class),new FormalField(Integer.class));
                 switch((String) serverResponse[1]){
                     case "GO":
                         actions.put(me.getUsername(),"placeHolderActionType","PlaceHolderAction");
@@ -61,17 +60,14 @@ public class FightHandler {
 
             }
 
-        } catch (UnknownHostException e) {
+        } catch (UnknownHostException | InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
         }
     }
-
 
     public void retrievePokemons() throws InterruptedException{
         myPokemon = Pokemon.fromJson((String) data.get(new FormalField(String.class), new ActualField(me.getUsername()))[0]);
