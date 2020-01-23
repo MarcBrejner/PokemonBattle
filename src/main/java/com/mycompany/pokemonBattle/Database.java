@@ -12,7 +12,7 @@ public class Database {
 	private Connection conn;
     private PreparedStatement insertProfile, getProfile, setProfile;
     private PreparedStatement insertItem, getItems, setItem, deleteItem;
-    private PreparedStatement insertPokemon, getPokemons, setPokemon;
+    private PreparedStatement insertPokemon, getPokemons, getPokemon, setPokemon;
     private PreparedStatement insertAbility, getAbilities;
     private PreparedStatement insertCredentials, getCredentials, setPassword;
 
@@ -47,6 +47,7 @@ public class Database {
             this.getCredentials = this.conn.prepareStatement("SELECT username, password FROM Authentication WHERE username = ?;");
             this.getProfile = this.conn.prepareStatement("SELECT * FROM Profile WHERE username = ?;");
             this.getItems = this.conn.prepareStatement("SELECT * FROM Item WHERE ownerId = ?;");
+            this.getPokemon = this.conn.prepareStatement("SELECT * from Pokemon WHERE masterId = ? AND name = ?;");
             this.getPokemons = this.conn.prepareStatement("SELECT * FROM Pokemon WHERE masterId = ?;");
             this.getAbilities = this.conn.prepareStatement("SELECT * FROM Ability WHERE pokemonId = ?;");
             
@@ -258,12 +259,46 @@ public class Database {
 			this.insertPokemon.setBoolean(7, pokemon.isAlive());
             this.insertPokemon.execute();
             
+            Pokemon new_pokemon = getPokemon(profile.id, pokemon.getName());
+            for(Ability a : pokemon.getAbilities()) {
+            	addAbility(new_pokemon, a);
+            }
+            
             profile.setPokemons(new ArrayList<Pokemon>());
             getPokemons(profile);
         } catch (SQLException ex) {
             ex.printStackTrace();
 		}
 		return profile;
+	}
+	
+	public Pokemon getPokemon(int profile_id, String pokemon_name) {
+		
+		int id=0, HP=0, maxHP=0, level=0, xp=0, requiredXp=0;
+		String name = "default", element = "default", status = "default";
+		boolean alive = false;
+		try {
+			this.getPokemon.setInt(1, profile_id);
+            this.getPokemon.setString(2, pokemon_name);
+            
+            ResultSet rs = this.getPokemons.executeQuery();
+            while(rs.next()){
+            	id = rs.getInt("id");
+            	name = rs.getString("name");
+            	element = rs.getString("element");
+            	status = rs.getString("status");
+            	HP = rs.getInt("hp");
+            	maxHP = rs.getInt("maxHp");
+            	alive = rs.getBoolean("alive");
+            	level = rs.getInt("level");
+            	xp = rs.getInt("xp");
+            	requiredXp = rs.getInt("requiredXp");
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+		}
+		Pokemon pokemon = new Pokemon(id, name, element, status, alive, HP, maxHP, level, xp, requiredXp);
+        return pokemon;
 	}
 	
 	public void getPokemons(Profile profile) {

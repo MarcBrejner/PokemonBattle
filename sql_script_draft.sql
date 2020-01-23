@@ -80,12 +80,12 @@ INSERT INTO pokemonGame.Profile(username) VALUES ("oliver");
 INSERT INTO pokemonGame.Profile(username) VALUES ("marc");
 
 INSERT INTO pokemonGame.Pokemon(masterId, name, element, status, hp, maxHp, alive, xp)
-VALUES (1, "Pikachu", "Electric", "None", 80, 80, true, 3);
+VALUES (1, "Pikachu", "Electric", "None", 35, 35, true, 3);
 
 INSERT INTO pokemonGame.Ability(pokemonId, name, element, type, enemyEffect, selfEffect, cost, value, selfValue, enemyStatus, selfStatus)
-VALUES (1, "Bolt", "Electric", "Damage", true, false, 2, -30, 0, "Paralyzed", "None");
+VALUES (1, "Bolt", "Electric", "Damage", true, false, 2, -90, 0, "Paralyzed", "None");
 INSERT INTO pokemonGame.Ability(pokemonId, name, element, type, enemyEffect, selfEffect, cost, value, selfValue, enemyStatus, selfStatus)
-VALUES (1, "Slap", "Normal", "Damage",true, false, 2, -30, 0, "None", "None");
+VALUES (1, "Slap", "Normal", "Damage",true, false, 1, -30, 0, "None", "None");
 
 INSERT INTO pokemonGame.Item(ownerId, name, type, value, number) VALUES (1, "Potion", "Heal", 25, 2);
 
@@ -94,6 +94,8 @@ SELECT * FROM pokemonGame.Item WHERE id=1;
 SELECT * FROM pokemonGame.Pokemon WHERE masterId=1;
 SELECT * FROM pokemonGame.Ability WHERE pokemonId=1;
 SELECT * FROM pokemonGame.Authentication;
+
+#SELECT * from pokemonGame.Pokemon WHERE masterId = 1 AND name = "Pikachu";
 
 #UPDATE pokemonGame.Authentication SET password = "pwd" WHERE username = "franck";
 #SELECT * FROM pokemonGame.Authentication WHERE username = "franck";

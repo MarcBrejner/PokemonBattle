@@ -394,6 +394,8 @@ class Controller {
             	
             case "members":
             	// for now just redirect to the main menu but in the end should display the list of connectedMembers
+            	checkPokemonStatus();
+            	checkProfileStatus();
             	state = "mainMenu";
             	break;
             
@@ -484,6 +486,9 @@ class Controller {
 							rXp = p.getLevel()*2;
 							p.setXP(xp);
 							p.setRequiredXP(rXp);
+							int mHP = p.getMaxHP();
+							p.setMaxHP(mHP + (p.getLevel()-1)*(int)(mHP*0.2));
+							p.setHP(p.getMaxHP());
 							// receive Ability and list of Abilities from ClientController
 							Ability new_ability = Ability.fromJson((String)elem[2]);
 							GsonBuilder builder = new GsonBuilder();
