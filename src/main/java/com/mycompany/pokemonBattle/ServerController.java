@@ -258,8 +258,8 @@ class Fight implements Runnable {
 			actions.put(fighter2.getUsername(), Profile.toJson(fighter1));
 
 			// TODO GET DIFFERENT POKEMON FROM USERS
-			fighterOnePokemon = new Pokemon("Pikachu"); //get 0 hardcoded atm
-			fighterTwoPokemon = new Pokemon("Pikachu");
+			fighterOnePokemon = fighter1.getPokemons().get(0); //get 0 hardcoded atm
+			fighterTwoPokemon = fighter2.getPokemons().get(0);
 
 			updatePokemons();
 

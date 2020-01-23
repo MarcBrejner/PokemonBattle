@@ -18,7 +18,8 @@ public class Ability{
     	this.enemy = enemy;
     	this.self = self;
     	this.cost = cost;
-    	this.selfValue = value;
+    	this.value = value;
+    	this.selfValue = selfValue;
     	this.enemyStatus = enemyStatus;
     	this.selfStatus = selfStatus;
     }

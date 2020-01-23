@@ -218,7 +218,7 @@ class Controller {
 				break;
             case "ability2":
 				// TODO GET ABILITY FROM USER, DAMAGE VALUE FROM DB IS INCORRECT, ABILITES FROM DB GIVE 0 DMG!
-				Ability ab2 = new Ability("Slap"); //abilityList.get(1);
+            	Ability ab2 = abilityList.get(1);; //abilityList.get(1);
 				try {
 					threadedComs.put("ABILITY", Ability.toJson(ab2));
 					System.out.println("Used ability: "+ab2.getName());
