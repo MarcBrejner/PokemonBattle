@@ -212,7 +212,7 @@ public class ClientController implements Runnable {
             System.out.println("Received data : " + e);
             enemy = Profile.fromJson(e);
             me = user;
-            
+
             String myPokemon = (String) mainController.get(new ActualField("choosen pokemon"),new FormalField(String.class))[1];
             System.out.println("Client got the pokemon: "+myPokemon);
             data.put(me.getUsername(),myPokemon);
@@ -245,6 +245,7 @@ public class ClientController implements Runnable {
 
                         break;
                     case "UPDATE":
+                    	mainController.put("UPDATE");
                     	getNewestAction();
         				retreivePokemons();
         				actions.put("SERVER", me.getUsername(), "UPDATE_ACK");
@@ -296,17 +297,6 @@ public class ClientController implements Runnable {
 		GameElements.pokemon1 = myPokemon;
 		GameElements.pokemon2 = enemyPokemon;
 
-		/*if(myPokemon.getHP() <= 0 && enemyPokemon.getHP() <= 0){
-            System.out.println("Both pokemons fainted, it's a draw");
-            fighting = false;
-        }else if(myPokemon.getHP() <= 0){
-		    System.out.println("Your "+myPokemon.getName()+" fainted, you lost");
-            fighting = false;
-        }else if(enemyPokemon.getHP() <= 0){
-            System.out.println("Enemy "+enemyPokemon.getName()+" fainted, you won!");
-            fighting = false;
-        }*/
-
 	}
 
 	public void getNewestAction() throws InterruptedException{
@@ -315,6 +305,7 @@ public class ClientController implements Runnable {
 		if(t != null){
 			String aType = t[1].equals("ABILITY") ? "ability":"item";
 			System.out.println(t[0]+" used the "+aType+" "+t[2]);
+			mainController.put("ABILITY", (String)t[2]);
 		}
 	}
 

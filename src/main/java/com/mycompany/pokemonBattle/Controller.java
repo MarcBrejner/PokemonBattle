@@ -27,6 +27,7 @@ class Controller {
     boolean shifted = false, caps = false;
     public static final int MAX_ABILITY = 4;
     public String selectedAbility = "";
+    private String lastAbility = "";
 
     GameElements gameElements;
 
@@ -217,7 +218,8 @@ class Controller {
 				Ability ab1 = abilityList.get(0);
 				try {
 					threadedComs.put("ABILITY", Ability.toJson(ab1));
-					System.out.println("Used ability: "+ab1.getName());
+					lastAbility = ab1.getName();
+					System.out.println("Used ability: "+lastAbility);
 					state = "right after your turn";
 				} catch (InterruptedException e) {
 					e.printStackTrace();
@@ -228,7 +230,8 @@ class Controller {
             	Ability ab2 = abilityList.get(1);; //abilityList.get(1);
 				try {
 					threadedComs.put("ABILITY", Ability.toJson(ab2));
-					System.out.println("Used ability: "+ab2.getName());
+					lastAbility = ab2.getName();
+					System.out.println("Used ability: "+lastAbility);
 					state = "right after your turn";
 				} catch (InterruptedException e) {
 					e.printStackTrace();
@@ -239,7 +242,8 @@ class Controller {
 				Ability ab3 = abilityList.get(2);
 				try {
 					threadedComs.put("ABILITY", Ability.toJson(ab3));
-					System.out.println("Used ability: "+ab3.getName());
+					lastAbility = ab3.getName();
+					System.out.println("Used ability: "+lastAbility);
 					state = "right after your turn";
 				} catch (InterruptedException e) {
 					e.printStackTrace();
@@ -250,7 +254,8 @@ class Controller {
 				Ability ab4 = abilityList.get(3);
 				try {
 					threadedComs.put("ABILITY", Ability.toJson(ab4));
-					System.out.println("Used ability: "+ab4.getName());
+					lastAbility = ab4.getName();
+					System.out.println("Used ability: "+lastAbility);
 					state = "right after your turn";
 				} catch (InterruptedException e) {
 					e.printStackTrace();
@@ -511,6 +516,9 @@ class Controller {
 					case "GO":
 						state = "right before your turn";
 						break;
+					case "UPDATE":
+						lastAbility = (String)threadedComs.get(new ActualField("ABILITY"), new FormalField(String.class))[1];
+						break;
 					case "WINNER":
 						gameElements.pokemon2View.fadeOut();
 						gameElements.createTextBox(300, 400, "You've won!");
@@ -563,8 +571,8 @@ class Controller {
 				break;
             	
             case "right before your turn":
-            	gameElements.createTextBox(300, 350, "*POKEMON* used *ABILITY*");
-            	state = "right before your turn2";
+				gameElements.createTextBox(300, 350, gameElements.pokemon2.getName()+" used "+lastAbility);
+				state = "right before your turn2";
             	break;
             
             case "right before your turn2":
@@ -589,7 +597,7 @@ class Controller {
             	break;
             
             case "right after your turn":
-            	gameElements.createTextBox(300, 350, "*POKEMON* used *ABILITY*");
+        	gameElements.createTextBox(300, 350, gameElements.pokemon1.getName()+" used "+lastAbility);
             	state = "right after your turn2";
             	break;
             
