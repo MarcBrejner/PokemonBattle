@@ -28,7 +28,10 @@ public class Pokemon {
 		this.requiredXP = requiredXP;
 	}
 	
-	private static String[] all_pokemons = new String[] {"Pikachu", "Charmander"};
+	private static String[] all_pokemons = new String[] {
+			"Bulbasaur", "Charmander", "Eevee", "Gastly", "Geodude", "Hitmonchan", "Kadabra", "Machop", "Pidgeotto", "Pikachu",
+			"Psyduck", "Squirtle"
+			};
 
     public Pokemon(String name) {
 		this.name = name;
@@ -37,13 +40,42 @@ public class Pokemon {
 		this.XP = 0;
 		this.requiredXP = 2;
         switch(name){
-            case "Pikachu":
-                pikachu();
-                break;
-
+            case "Bulbasaur":
+            	bulbasaur();
+            	break;
             case "Charmander":
 				charmander();
                 break;
+            case "Eevee":
+            	eevee();
+            	break;
+            case "Gastly":
+            	gastly();
+            	break;
+            case "Geodude":
+            	geodude();
+            	break;
+            case "Hitmonchan":
+            	hitmonchan();
+            	break;
+            case "Kadabra":
+            	kadabra();
+            	break;
+            case "Machop":
+            	machop();
+            	break;
+            case "Pidgeotto":
+            	pidgeotto();
+            	break;
+            case "Pikachu":
+                pikachu();
+                break;
+            case "Psyduck":
+            	psyduck();
+            	break;
+            case "Squirtle":
+            	squirtle();
+            	break;
         }
     }
 
@@ -148,20 +180,100 @@ public class Pokemon {
 	
 	// one function for each type of pokemon that can be generated with its capacities
 
-	private void pikachu(){
-		maxHP = 80;
-		HP = maxHP; 
-		element = "Electric";
-        abilities.add(new Ability("Bolt"));
-        alive = true;
+    private void bulbasaur() {
+    	maxHP = 45;
+    	HP = maxHP;
+    	element = "Grass&Poison";
+    	abilities.add(new Ability("Acid"));
+    	alive = true;
     }
-
+    
     private void charmander(){
-        maxHP = 90;
+        maxHP = 39;
 		HP = maxHP;
         element = "Fire";
         abilities.add(new Ability("Slap"));
         alive = true;
     }
+    
+    private void eevee() {
+    	maxHP = 55;
+		HP = maxHP;
+        element = "Normal";
+        abilities.add(new Ability("Bind"));
+        alive = true;
+    }
+    
+    private void gastly() {
+    	maxHP = 30;
+		HP = maxHP;
+        element = "Poison";
+        abilities.add(new Ability("Acid"));
+        alive = true;
+    }
+    
+    private void geodude() {
+    	maxHP = 40;
+ 		HP = maxHP;
+        element = "Rock";
+        abilities.add(new Ability("Rock Throw"));
+        alive = true;
+    }
+    
+    private void hitmonchan() {
+    	maxHP = 50;
+ 		HP = maxHP;
+        element = "Fighting";
+        abilities.add(new Ability("Double Kick"));
+        alive = true;
+    }
+    
+    private void kadabra() {
+    	maxHP = 40;
+ 		HP = maxHP;
+        element = "Psychic";
+        abilities.add(new Ability("Confusion"));
+        alive = true;
+    }
+    
+    private void machop() {
+    	maxHP = 70;
+		HP = maxHP;
+        element = "Fighting";
+        abilities.add(new Ability("Double Kick"));
+        alive = true;
+    }
+    
+    private void pidgeotto() {
+    	maxHP = 63;
+		HP = maxHP;
+        element = "Flying";
+        abilities.add(new Ability("Gust"));
+        alive = true;
+    }
+    
+	private void pikachu(){
+		maxHP = 35;
+		HP = maxHP; 
+		element = "Electric";
+        abilities.add(new Ability("Bolt"));
+        alive = true;
+    }
+	
+	private void psyduck() {
+		maxHP = 50;
+		HP = maxHP; 
+		element = "Water";
+        abilities.add(new Ability("Bubble"));
+        alive = true;
+	}
+
+   private void squirtle() {
+	   	maxHP = 44;
+		HP = maxHP; 
+		element = "Water";
+		abilities.add(new Ability("Bubble"));
+		alive = true;
+   }
 
 }
