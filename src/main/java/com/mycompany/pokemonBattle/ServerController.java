@@ -270,16 +270,19 @@ class Fight implements Runnable {
 				Object[] fighterOneAction = actions.get(new ActualField(fighter1.getUsername()),new FormalField(String.class),new FormalField(String.class)); // format: name, type, action
 				//System.out.println("Got action from player 1: "+fighterOneAction[2]);
 				processAction(fighterOneAction,1);
+				updatePokemons();
 
 				//Check if any pokemon has HP <= 0 and end game if so.
-				if(fighterOnePokemon.getHP() <= 0){
+				if(fighterOnePokemon.getHP() <= 0){ //TODO: UPDATE EXP ETC. based on winner!
+					actions.put(fighter2.getUsername(),"GO");
 					break;
 				}else if(fighterTwoPokemon.getHP() <= 0){
+					actions.put(fighter2.getUsername(),"GO");
 					break;
 				}
 
 				//Update the local pokemon of the clients
-				updatePokemons();
+
 
 				//Receive and process action of player 2.
 				actions.put(fighter2.getUsername(),"GO");
@@ -287,11 +290,14 @@ class Fight implements Runnable {
 				//System.out.println("Got action from player 2: "+(String) fighterTwoAction[2]);
 
 				processAction(fighterTwoAction,2);
+				updatePokemons();
 
 				//Check if any pokemon has HP <= 0 and end game if so.
-				if(fighterOnePokemon.getHP() <= 0){
+				if(fighterOnePokemon.getHP() <= 0){//TODO: UPDATE EXP ETC. based on winner!
+					actions.put(fighter1.getUsername(),"GO");
 					break;
 				}else if(fighterTwoPokemon.getHP() <= 0){
+					actions.put(fighter1.getUsername(),"GO");
 					break;
 				}
 				//Update the local pokemon of the clients

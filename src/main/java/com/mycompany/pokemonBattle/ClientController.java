@@ -176,6 +176,10 @@ public class ClientController implements Runnable {
                 getNewestAction();
 				retreivePokemons();
 
+                if(!fighting){
+                    break;
+                }
+
                 //System.out.println("Got from server: "+(String)serverResponse[1]);
                 switch((String) serverResponse[1]){
                     case "GO":
@@ -216,6 +220,17 @@ public class ClientController implements Runnable {
 
 		System.out.println("I have pokemon: "+myPokemon.getName()+" with HP "+myPokemon.getHP());
 		System.out.println("My opponent has pokemon: "+enemyPokemon.getName()+" with HP "+enemyPokemon.getHP());
+
+		if(myPokemon.getHP() <= 0 && enemyPokemon.getHP() <= 0){
+            System.out.println("Both pokemons fainted, it's a draw");
+            fighting = false;
+        }else if(myPokemon.getHP() <= 0){
+		    System.out.println("Your "+myPokemon.getName()+" fainted, you lost");
+            fighting = false;
+        }else if(enemyPokemon.getHP() <= 0){
+            System.out.println("Enemy "+enemyPokemon.getName()+" fainted, you won!");
+            fighting = false;
+        }
 
 	}
 
