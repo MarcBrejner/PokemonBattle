@@ -17,7 +17,9 @@ UNIQUE ( username )
 CREATE TABLE pokemonGame.Profile (
 id INT NOT NULL auto_increment,
 username varchar(20) NOT NULL,
-level int DEFAULT 0,
+level int DEFAULT 1,
+xp int DEFAULT 0,
+requiredXp int AS (level*4),
 PRIMARY KEY ( id ),
 FOREIGN KEY (username) REFERENCES Authentication(username),
 UNIQUE ( username )
@@ -32,6 +34,9 @@ status varchar(20),
 hp int,
 maxHp int,
 alive boolean,
+level int DEFAULT 1,
+xp int DEFAULT 0,
+requiredXp int AS (level*2),
 PRIMARY KEY (id),
 FOREIGN KEY (masterId) REFERENCES Profile(id)
 );
@@ -69,13 +74,13 @@ INSERT INTO pokemonGame.Authentication(username, password) VALUES ("franck", "pa
 INSERT INTO pokemonGame.Authentication(username, password) VALUES ("oliver", "password");
 INSERT INTO pokemonGame.Authentication(username, password) VALUES ("marc", "password");
 
-INSERT INTO pokemonGame.Profile(username, level) VALUES ("vincent", 1);
-INSERT INTO pokemonGame.Profile(username) VALUES ("franck");
+INSERT INTO pokemonGame.Profile(username, level) VALUES ("vincent", 2);
+INSERT INTO pokemonGame.Profile(username, xp) VALUES ("franck", 5);
 INSERT INTO pokemonGame.Profile(username) VALUES ("oliver");
 INSERT INTO pokemonGame.Profile(username) VALUES ("marc");
 
-INSERT INTO pokemonGame.Pokemon(masterId, name, element, status, hp, maxHp, alive)
-VALUES (1, "Pikachu", "Electric", "None", 80, 80, true);
+INSERT INTO pokemonGame.Pokemon(masterId, name, element, status, hp, maxHp, alive, xp)
+VALUES (1, "Pikachu", "Electric", "None", 80, 80, true, 3);
 
 INSERT INTO pokemonGame.Pokemon(masterId, name, element, status, hp, maxHp, alive)
 VALUES (4, "Pikachu", "Electric", "None", 80, 80, true);
@@ -99,5 +104,8 @@ SELECT * FROM pokemonGame.Authentication;
 
 #UPDATE pokemonGame.Authentication SET password = "pwd" WHERE username = "franck";
 #SELECT * FROM pokemonGame.Authentication WHERE username = "franck";
+
+#UPDATE pokemonGame.Profile SET level = 4, xp = 2 WHERE id = 1;
+#SELECT * FROM pokemonGame.Profile;
 
 #DELETE from pokemonGame.Profile WHERE id = 2;

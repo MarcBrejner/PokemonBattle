@@ -1,5 +1,7 @@
 package com.mycompany.pokemonBattle;
 
+import java.util.Random;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -9,12 +11,13 @@ public class Ability{
     private boolean enemy, self;
     private int cost;
     private int value, selfValue;
-    private String name, element, enemyStatus, selfStatus;
+    private String name, element, type, enemyStatus, selfStatus;
     
-    public Ability(int id, String name, String element, boolean enemy, boolean self, int cost, int value, int selfValue, String enemyStatus, String selfStatus) {
+    public Ability(int id, String name, String element, String type, boolean enemy, boolean self, int cost, int value, int selfValue, String enemyStatus, String selfStatus) {
     	this.id = id;
     	this.name = name;
     	this.element = element;
+    	this.type = type;
     	this.enemy = enemy;
     	this.self = self;
     	this.cost = cost;
@@ -23,6 +26,9 @@ public class Ability{
     	this.enemyStatus = enemyStatus;
     	this.selfStatus = selfStatus;
     }
+    
+    // list of all possible abilities, used to pick a random one
+    private static String[] all_abilities = new String[] {"Bolt", "Recover", "Slap", "Sleep"};
 
     public Ability(String name){
         this.name = name;
@@ -36,6 +42,9 @@ public class Ability{
             case "Slap":
                 slap();
                 break;
+            case "Sleep":
+            	sleep();
+            	break;
         }
     }
 
@@ -46,6 +55,7 @@ public class Ability{
         this.self = false;
         this.cost = 2;
         this.element = "Electric";
+        this.type = "Damage";
 		this.enemyStatus = "Paralyzed";
 		this.selfStatus = "None";
     }
@@ -57,6 +67,7 @@ public class Ability{
         this.self = false;
         this.cost = 1;
         this.element = "Normal";
+        this.type = "Damage";
 		this.enemyStatus = "None";
 		this.selfStatus = "None";
     }
@@ -68,6 +79,7 @@ public class Ability{
         this.self = true;
         this.cost = 3;
         this.element = "Normal";
+        this.type = "Heal";
 		this.enemyStatus = "None";
 		this.selfStatus = "None";
     }
@@ -79,6 +91,7 @@ public class Ability{
         this.self = false;
         this.cost = 2;
         this.element = "Grass";
+        this.type = "None";
 		this.enemyStatus = "Sleepy";
 		this.selfStatus = "None";
     }
@@ -134,6 +147,10 @@ public class Ability{
     public String getElement() {
         return element;
     }
+    
+    public String getType() {
+    	return type;
+    }
 
     public String getEnemyStatus() {
         return enemyStatus;
@@ -141,6 +158,12 @@ public class Ability{
 	
 	public String getSelfStatus() {
 		return selfStatus;
+	}
+	
+	public static Ability pickRandom() {
+		Random random = new Random(); 
+		int i = random.nextInt(all_abilities.length);
+		return new Ability(all_abilities[i]);
 	}
 
 }

@@ -2,7 +2,6 @@ package com.mycompany.pokemonBattle;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.jspace.*;
@@ -116,11 +115,16 @@ class UserHandler implements Runnable {
 		}
 		System.out.println("Data sent (" + profile_string.getClass() + ") : " + profile_string);
 		Boolean running = true;
+		status = "IDLE";
 		while (running) {
 			String t; // message
 			try {
-				status = "IDLE";
 				t = (String) handler.get(new ActualField("SERVER"), new FormalField(String.class))[1];
+				// refresh the profile instance after a fight to get changes
+				if(status.equals("FIGHTING")) {
+					refreshProfile();
+					status = "IDLE";
+				}
 				System.out.println("Handler for " + profile.getUsername() + " received ACTION : " + t);
 				running = actionHandler(t);
 			} catch (InterruptedException e) {
@@ -135,6 +139,57 @@ class UserHandler implements Runnable {
 		try {
 			Boolean result = true;
 			switch (action) {
+			case "GET_PROFILE":
+				handler.put("CLIENT", Profile.toJson(profile));
+				break;
+				
+			case "USER_LEVEL_UP":
+				int XP = profile.getXP(), rXP = profile.getRequiredXP();
+				if(XP >= rXP) {
+					profile.setLevel(profile.getLevel()+1);
+					profile.setXP(XP - rXP);
+					profile.setRequiredXP(profile.getLevel()*4);
+					// pick randomly a new pokemon
+					Pokemon new_pokemon = Pokemon.pickRandom();
+					// then update the database and update current profile instance
+					database.updateProfile(profile);
+					profile = database.addPokemon(profile, new_pokemon);
+					Gson gson = new Gson();
+					handler.put("CLIENT", "OK");
+					// send new pokemon as well as all the updated list of pokemons
+					Pokemon[] array_pokemons = profile.getPokemons().toArray(new Pokemon[0]);
+					handler.put("CLIENT", Pokemon.toJson(new_pokemon), gson.toJson(array_pokemons));
+				} else {
+					handler.put("CLIENT", "Forbidden");
+				}
+				break;
+				
+			case "POKEMON_LEVEL_UP":
+				List<Pokemon> list_pokemons = profile.getPokemons();
+				boolean success = false;
+				for(Pokemon p : list_pokemons) {
+					int xp = p.getXP(), rXp = p.getRequiredXP();
+					if(xp >= rXp) {
+						p.setLevel(p.getLevel()+1);
+						p.setXP(xp - rXp);
+						p.setRequiredXP(p.getLevel()*2);
+						//pick randomly a new ability
+						Ability new_ability = Ability.pickRandom();
+						//update database and retrieve latest version of pokemon
+						database.updatePokemon(p);
+						p = database.addAbility(p, new_ability);
+						Gson gson = new Gson();
+						handler.put("CLIENT", "OK");
+						// send new ability as well as all the updated list of abilities for this pokemon
+						Ability[] array_abilities = p.getAbilities().toArray(new Ability[0]);
+						handler.put("CLIENT", p.id, Ability.toJson(new_ability), gson.toJson(array_abilities));
+						success = true;
+						break;
+					}
+				}
+				if(!success){handler.put("CLIENT", "Forbidden");};
+				break;
+				
 			case "MEMBERS":
 				List<Object[]> list = members.queryAll(new FormalField(String.class));
 				String[] connectedMembers = new String[list.size()];
@@ -145,7 +200,6 @@ class UserHandler implements Runnable {
 				handler.put("CLIENT", gson.toJson(connectedMembers));
 				System.out.println("Handler " + profile.getUsername() + " has sent list of all connected members");
 				break;
-				
 
 			case "FIGHT":
 				fighters.put(profile.getUsername(), "SEARCHING");
@@ -173,6 +227,10 @@ class UserHandler implements Runnable {
 			return false;
 		}
 
+	}
+	
+	private void refreshProfile() {
+		profile = database.getProfile(name);
 	}
 }
 

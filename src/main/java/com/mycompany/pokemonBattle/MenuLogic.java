@@ -77,11 +77,16 @@ class MenuLogic {
     }
 
     public String getAction(){
+    	if (currentMenu == null) {
+    		return "";
+    	}
         return currentMenu.getAction();
     }
 
     public void draw(){
-        currentMenu.draw();
+    	if (currentMenu != null) {
+    		currentMenu.draw();
+    	}
     }
     
     public void changeMenu(String newMenu) {

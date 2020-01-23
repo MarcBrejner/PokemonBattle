@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 public class Database {
 
@@ -39,17 +40,20 @@ public class Database {
             // Prepared Statement
             this.insertCredentials = this.conn.prepareStatement("INSERT INTO Authentication (username, password) VALUES (?, ?);");
             this.insertProfile = this.conn.prepareStatement("INSERT INTO Profile (username) VALUES (?);");
+            this.insertPokemon = this.conn.prepareStatement("INSERT INTO Pokemon (masterId, name, element, status, hp, maxHp, alive) VALUES (?, ?, ?, ?, ?, ?, ?);");
+            this.insertAbility = this.conn.prepareStatement("INSERT INTO Ability (pokemonId, name, element, type, enemyEffect, selfEffect, cost, value, selfValue, enemyStatus, selfStatus) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
+            this.insertItem = this.conn.prepareStatement("INSERT INTO Item (ownerId, name, type, value, number) VALUES (?, ?, ?, ?, ?);");
             
-            this.getCredentials = this.conn.prepareStatement("SELECT * FROM Authentication WHERE username = ?;");
+            this.getCredentials = this.conn.prepareStatement("SELECT username, password FROM Authentication WHERE username = ?;");
             this.getProfile = this.conn.prepareStatement("SELECT * FROM Profile WHERE username = ?;");
             this.getItems = this.conn.prepareStatement("SELECT * FROM Item WHERE ownerId = ?;");
             this.getPokemons = this.conn.prepareStatement("SELECT * FROM Pokemon WHERE masterId = ?;");
             this.getAbilities = this.conn.prepareStatement("SELECT * FROM Ability WHERE pokemonId = ?;");
             
             this.setPassword = this.conn.prepareStatement("UPDATE Authentication SET password = ? WHERE username = ?;");
-            this.setProfile = this.conn.prepareStatement("UPDATE Profile SET username = ?, level = ? WHERE id = ?;");
+            this.setProfile = this.conn.prepareStatement("UPDATE Profile SET level = ?, xp = ? WHERE id = ?;");
             this.setItem = this.conn.prepareStatement("UPDATE Item SET number = ? WHERE id = ?;");
-            this.setPokemon = this.conn.prepareStatement("UPDATE Pokemon SET hp = ?, maxHp = ?, status = ?, alive = ? WHERE id = ?;");
+            this.setPokemon = this.conn.prepareStatement("UPDATE Pokemon SET hp = ?, maxHp = ?, status = ?, alive = ?, level = ?, xp = ? WHERE id = ?;");
             
             this.deleteItem = this.conn.prepareStatement("DELETE FROM Item WHERE id = ?;");
 
@@ -69,13 +73,11 @@ public class Database {
             ex.printStackTrace();
 		}
 		
-		int id=0;
 		String username_="default", password_="default";
 		
 		try {
             ResultSet rs = this.getCredentials.executeQuery();
         	while(rs.next()){
-            	id = rs.getInt("id");
 				username_ = rs.getString("username");
 				password_ = rs.getString("password");
 			}
@@ -114,7 +116,7 @@ public class Database {
             ex.printStackTrace();
 		}
 		
-      	int id=0, level=0;
+      	int id=0, level=0, xp=0, requiredXp=0;
 		String username_ = "default";
      
         try {
@@ -123,12 +125,14 @@ public class Database {
             	id = rs.getInt("id");
 				username_ = rs.getString("username");
 				level = rs.getInt("level");
+				xp = rs.getInt("xp");
+				requiredXp = rs.getInt("requiredXp");
 			}
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
 		
-		Profile profile = new Profile(id, username_, level);
+		Profile profile = new Profile(id, username_, level, xp, requiredXp);
 		System.out.println("Profile object for " + username_ + "[id:" + id + "] created... with level : " + level);
 		this.getItems(profile);
 		this.getPokemons(profile);
@@ -146,20 +150,52 @@ public class Database {
 	
 	public void updateProfile(Profile profile) {
 		try {
-            this.setProfile.setString(1, profile.getUsername());
-            this.setProfile.setInt(2, profile.getLevel());
+            this.setProfile.setInt(1, profile.getLevel());
+            this.setProfile.setInt(2, profile.getXP());
             this.setProfile.setInt(3, profile.id);
             this.setProfile.executeUpdate();
-            
-            for(Item item : profile.getItems()) {
-            	updateItem(item);
-            }
-            for(Pokemon pokemon : profile.getPokemons()) {
-            	updatePokemon(pokemon);
-            }
         } catch (SQLException ex) {
             ex.printStackTrace();
 		}
+	}
+	
+	public void saveProfile(Profile profile) {
+        updateProfile(profile);
+        
+        for(Item item : profile.getItems()) {
+        	updateItem(item);
+        }
+        for(Pokemon pokemon : profile.getPokemons()) {
+        	updatePokemon(pokemon);
+        }
+	}
+	
+	public Profile addItem(Profile profile, Item item) {
+		boolean new_item = true;
+		for(Item i : profile.getItems()) {
+			if(i.getName().equals(item.getName()) && i.getValue() == item.getValue()) {
+				new_item = false;
+				i.add(item.getNumber());
+				updateItem(i);
+				break;
+			}
+		}
+		if(new_item) {
+			try {
+				this.insertItem.setInt(1, profile.id);
+				this.insertItem.setString(2, item.getName());
+				this.insertItem.setString(3, item.getType());
+				this.insertItem.setInt(4, item.getValue());
+				this.insertItem.setInt(5, item.getNumber());
+	            this.insertItem.execute();
+	            
+	            profile.setItems(new ArrayList<Item>());
+	            getItems(profile);
+	        } catch (SQLException ex) {
+	            ex.printStackTrace();
+			}
+		}
+		return profile;
 	}
 	
 	public void getItems(Profile profile) {
@@ -211,6 +247,25 @@ public class Database {
 		}
 	}
 	
+	public Profile addPokemon(Profile profile, Pokemon pokemon) {
+		try {
+			this.insertPokemon.setInt(1, profile.id);
+			this.insertPokemon.setString(2, pokemon.getName());
+			this.insertPokemon.setString(3, pokemon.getElement());
+			this.insertPokemon.setString(4, pokemon.getStatus());
+			this.insertPokemon.setInt(5, pokemon.getHP());
+			this.insertPokemon.setInt(6, pokemon.getMaxHP());
+			this.insertPokemon.setBoolean(7, pokemon.isAlive());
+            this.insertPokemon.execute();
+            
+            profile.setPokemons(new ArrayList<Pokemon>());
+            getPokemons(profile);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+		}
+		return profile;
+	}
+	
 	public void getPokemons(Profile profile) {
 		try {
             this.getPokemons.setInt(1, profile.id);
@@ -218,7 +273,7 @@ public class Database {
             ex.printStackTrace();
 		}
 		
-		int id = 0, HP = 0, maxHP = 0;
+		int id=0, HP=0, maxHP=0, level=0, xp=0, requiredXp=0;
 		String name = "default", element = "default", status = "default";
 		boolean alive = false;
 		
@@ -232,8 +287,11 @@ public class Database {
             	HP = rs.getInt("hp");
             	maxHP = rs.getInt("maxHp");
             	alive = rs.getBoolean("alive");
+            	level = rs.getInt("level");
+            	xp = rs.getInt("xp");
+            	requiredXp = rs.getInt("requiredXp");
             	
-            	Pokemon pokemon = new Pokemon(id, name, element, status, alive, HP, maxHP);
+            	Pokemon pokemon = new Pokemon(id, name, element, status, alive, HP, maxHP, level, xp, requiredXp);
             	System.out.println(profile.getUsername() + " got pokemon " + pokemon.getName());
             	this.getAbilities(pokemon);
             	profile.addPokemon(pokemon);
@@ -250,11 +308,36 @@ public class Database {
             this.setPokemon.setInt(2, pokemon.getMaxHP());
             this.setPokemon.setString(3, pokemon.getStatus());
             this.setPokemon.setBoolean(4, pokemon.isAlive());
-            this.setPokemon.setInt(5,  pokemon.id);
+            this.setPokemon.setInt(5,  pokemon.getLevel());
+            this.setPokemon.setInt(6,  pokemon.getXP());
+            this.setPokemon.setInt(7,  pokemon.id);
             this.setPokemon.executeUpdate();
         } catch (SQLException ex) {
             ex.printStackTrace();
 		}
+	}
+	
+	public Pokemon addAbility(Pokemon pokemon, Ability ability) {
+		try {
+			this.insertAbility.setInt(1, pokemon.id);
+			this.insertAbility.setString(2, ability.getName());
+			this.insertAbility.setString(3, ability.getElement());
+			this.insertAbility.setString(4, ability.getType());
+			this.insertAbility.setBoolean(5, ability.isOnEnemy());
+			this.insertAbility.setBoolean(6, ability.isOnSelf());
+			this.insertAbility.setInt(7, ability.getCost());
+			this.insertAbility.setInt(8, ability.getValue());
+			this.insertAbility.setInt(9, ability.getSelfValue());
+			this.insertAbility.setString(10, ability.getEnemyStatus());
+			this.insertAbility.setString(11, ability.getSelfStatus());
+            this.insertAbility.execute();
+            
+            pokemon.setAbilities(new ArrayList<Ability>());
+            getAbilities(pokemon);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+		}
+		return pokemon;
 	}
 	
 	public void getAbilities(Pokemon pokemon) {
@@ -283,7 +366,7 @@ public class Database {
             	enemy = rs.getBoolean("enemyEffect");
             	self = rs.getBoolean("selfEffect");
             	
-            	Ability ability = new Ability(id, name, element, enemy, self, cost, value, selfValue, enemyStatus, selfStatus);
+            	Ability ability = new Ability(id, name, element, type, enemy, self, cost, value, selfValue, enemyStatus, selfStatus);
             	System.out.println("Extracted ability " + ability.getName() + " from database");
             	pokemon.addAbility(ability);
             	System.out.println(pokemon.getName() + " got ability " + ability.getName() + "(element " + ability.getElement() + ")");

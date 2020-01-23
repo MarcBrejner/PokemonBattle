@@ -1,5 +1,7 @@
 package com.mycompany.pokemonBattle;
 
+import java.util.Random;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -17,6 +19,8 @@ public class Item {
 		this.value = value;
 		this.number = number;
 	}
+	
+	private static String[] all_items = new String[] {"Potion", "Super potion"};
 
 	public Item(String name) {
 		this.name = name;
@@ -56,6 +60,20 @@ public class Item {
 	
 	public int getNumber() {
 		return number;
+	}
+	
+	public void add(int i) {
+		number += i;
+	}
+	
+	public void consume(int i) {
+		number -= i;
+	}
+	
+	public static Item pickRandom() {
+		Random random = new Random(); 
+		int i = random.nextInt(all_items.length);
+		return new Item(all_items[i]);
 	}
 
 	// one function per type of item that can be generated

@@ -12,12 +12,14 @@ public class Profile {
 	private String username;
 	private List<Pokemon> pokemons = new ArrayList<Pokemon>();
 	private List<Item> items = new ArrayList<Item>();
-	private int level;
+	private int level, XP, requiredXP;
 
-	public Profile(int id, String username, int level) {
+	public Profile(int id, String username, int level, int XP, int requiredXP) {
 		this.id = id;
 		this.username = username;
 		this.level = level;
+		this.XP = XP;
+		this.requiredXP = requiredXP;
 	}
 	
 	public static String toJson(Profile profile){
@@ -40,7 +42,27 @@ public class Profile {
 	public int getLevel() {
 		return level;
 	}
+	
+	public void setLevel(int level) {
+		this.level = level;
+	}
+	
+	public int getXP() {
+		return XP;
+	}
+	
+	public void setXP(int XP) {
+		this.XP = XP;
+	}
 
+	public int getRequiredXP() {
+		return requiredXP;
+	}
+	
+	public void setRequiredXP(int XP) {
+		requiredXP = XP;
+	}
+	
 	public List<Pokemon> getPokemons() {
 		return pokemons;
 	}
@@ -55,6 +77,10 @@ public class Profile {
 
 	public List<Item> getItems() {
 		return items;
+	}
+	
+	public void setItems(List<Item> items) {
+		this.items = items;
 	}
 
 	public void addItem(Item item) {

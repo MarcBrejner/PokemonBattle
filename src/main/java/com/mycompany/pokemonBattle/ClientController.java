@@ -4,20 +4,13 @@ import org.jspace.ActualField;
 import org.jspace.FormalField;
 import org.jspace.RemoteSpace;
 import org.jspace.SequentialSpace;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 
 public class ClientController implements Runnable {
 	
 	public String username, password, status;
-	private SequentialSpace threadedComs;
+	private SequentialSpace mainController;
 	
 	//from fightHandler:
 	private Pokemon myPokemon, enemyPokemon;
@@ -29,18 +22,14 @@ public class ClientController implements Runnable {
     
     private boolean fighting = false;
 	
-	public ClientController(SequentialSpace threadedComs) {
-		this.threadedComs = threadedComs;
+	public ClientController(SequentialSpace mainController) {
+		this.mainController = mainController;
 	}
 	
 	public void run() {
 
 		try {
-			
-			BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
-
 			// Set the URI of the chat space
-			
 			// Default value
 			String lobbyUri = "tcp://"+ Config.serverHost +"/lobby?keep";
 			
@@ -52,7 +41,7 @@ public class ClientController implements Runnable {
 			Boolean connected = true;
 			while(connected) {
 				System.out.println("Waiting for connection credentials from threadedComs...");
-				Object[] credentials = threadedComs.get(new FormalField(String.class), new FormalField(String.class), new FormalField(String.class));
+				Object[] credentials = mainController.get(new FormalField(String.class), new FormalField(String.class), new FormalField(String.class));
 				String request = (String)credentials[0];
 				username = (String)credentials[1];
 				password = (String)credentials[2];
@@ -71,7 +60,7 @@ public class ClientController implements Runnable {
 					}
 					if (resp.equals("OK")) {
 						System.out.println("Authentication successful");
-						threadedComs.put(request + "_ACK", "OK");
+						mainController.put(request + "_ACK", "OK");
 						//joining room
 						String serverControllerURI = "tcp://"+ Config.serverHost +"/handlers/"+username+"?keep";
 						RemoteSpace serverController = new RemoteSpace(serverControllerURI);
@@ -81,43 +70,80 @@ public class ClientController implements Runnable {
 						System.out.println("Waiting for data reception...");
 						String t = (String)serverController.get(new ActualField("CLIENT"), new FormalField(String.class))[1];
 						System.out.println("Received data : " + t);
-						threadedComs.put("PROFILE", t);
+						mainController.put("PROFILE", t);
 						Profile profile = Profile.fromJson(t);
 
 						// Keep sending whatever the user types
 						Boolean registered = true;
 						while(registered) {
 							System.out.println(status);
-							System.out.println("Waiting for an action (MEMBERS, POKEMONS, ITEMS, FIGHT, DISCONNECT) from threadedComs...");
-							String action = (String) threadedComs.get(new FormalField(String.class))[0];
-							if(action.equals("MEMBERS") || action.equals("FIGHT") || action.equals("DISCONNECT") || action.equals("POKEMONS") || action.equals("ITEMS")) {
+							System.out.println("Waiting for an action (MEMBERS, POKEMONS, ITEMS, FIGHT, DISCONNECT) from mainController...");
+							String action = (String) mainController.get(new FormalField(String.class))[0];
+							if (action.equals("GET_PROFILE")
+								|| action.equals("MEMBERS")
+								|| action.equals("FIGHT")
+								|| action.equals("DISCONNECT")
+								|| action.equals("POKEMONS")
+								|| action.equals("ITEMS")
+								|| action.equals("USER_LEVEL_UP")
+								|| action.equals("POKEMON_LEVEL_UP")
+							){
 								serverController.put("SERVER", action);
+								String response;
 								switch(action){
+									case "GET_PROFILE":
+										String profile_string = (String)serverController.get(new ActualField("CLIENT"), new FormalField(String.class))[1];
+										mainController.put("GET_PROFILE_ACK", profile_string);
+										profile = Profile.fromJson(profile_string);
+										break;
+										
 									case "MEMBERS":
 										String connectedMembers_string = (String)serverController.get(new ActualField("CLIENT"), new FormalField(String.class))[1];
-										threadedComs.put("MEMBERS_ACK", connectedMembers_string);
+										mainController.put("MEMBERS_ACK", connectedMembers_string);
 										break;
 
 									case "FIGHT":
 										System.out.println("Looking for an opponent...");
 										String fightURI = (String) serverController.get(new ActualField("CLIENT"), new FormalField(String.class))[1];
-										threadedComs.put("GOTFIGHT");
+										mainController.put("GOTFIGHT");
 										System.out.println("Got a fight ! At " + fightURI);
 										fightHandler(fightURI,profile);
 										System.out.println("Fight has ended !");
 										break;
+										
+									case "USER_LEVEL_UP":
+										response = (String)serverController.get(new ActualField("CLIENT"), new FormalField(String.class))[1];
+										if (response.equals("OK")) {
+											mainController.put("USER_LEVEL_UP_ACK", "OK");
+											Object[] elem = serverController.get(new ActualField("CLIENT"), new FormalField(String.class), new FormalField(String.class));
+											mainController.put("USER_LEVEL_UP_ACK", elem[1], elem[2]);
+										} else {
+											mainController.put("USER_LEVEL_UP_ACK", response);
+										}
+										break;
+										
+									case "POKEMON_LEVEL_UP":
+										response = (String)serverController.get(new ActualField("CLIENT"), new FormalField(String.class))[1];
+										if (response.equals("OK")) {
+											mainController.put("POKEMON_LEVEL_UP_ACK", "OK");
+											Object[] obj = serverController.get(new ActualField("CLIENT"), new FormalField(Integer.class), new FormalField(String.class), new FormalField(String.class));
+											mainController.put("POKEMON_LEVEL_UP_ACK", (int)obj[1], (String)obj[2], (String)obj[3]);
+										} else {
+											mainController.put("POKEMON_LEVEL_UP_ACK", response);
+										}
+										break;
 
 									case "DISCONNECT":
-										String response = (String) serverController.get(new ActualField("CLIENT"), new FormalField(String.class))[1];
+										response = (String) serverController.get(new ActualField("CLIENT"), new FormalField(String.class))[1];
 										if (response.equals("OK")) {
 											serverController.put("SERVER", "OK_ACK");
-											threadedComs.put("DISCONNECT_ACK", "OK");
+											mainController.put("DISCONNECT_ACK", "OK");
 											registered = false;
 											System.out.println("Succesfully disconnected !");
 											status = "CONNECTED TO LOBBY";
 										} else {
 											System.out.println("ERROR : " + action + " FAILED - response : " + response);
-											threadedComs.put("DISCONNECT_ACK", response);
+											mainController.put("DISCONNECT_ACK", response);
 										}
 										break;
 								}
@@ -127,7 +153,7 @@ public class ClientController implements Runnable {
 						}
 					} else {
 						System.out.println("Registration failed : " + resp);
-						threadedComs.put(request + "_ACK", "ERROR");
+						mainController.put(request + "_ACK", "ERROR");
 					}
 				} catch (InterruptedException e) {
 					System.out.println("Ignored?");
@@ -186,7 +212,7 @@ public class ClientController implements Runnable {
 						System.out.println("Your Turn");
                     	//waiting for ability from controller
 
-                    	Object[] temp = threadedComs.get(new FormalField(String.class), new FormalField(String.class));
+                    	Object[] temp = mainController.get(new FormalField(String.class), new FormalField(String.class));
 
                     	String actionType = temp[0].equals("ABILITY") ? "ABILITY":"ITEM";
 
