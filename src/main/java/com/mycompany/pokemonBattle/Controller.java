@@ -105,14 +105,43 @@ class Controller {
 					threadedComs.put("CONNECT", username, password);
 					state = "signIn";
 				} catch (InterruptedException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
+				}
+        		break;
+        		
+        	case "initialBulbasaur":
+				try {
+					threadedComs.put("INITIAL", "Bulbasaur");
+					state = "initial_choice";
+				} catch (InterruptedException e2) {
+					e2.printStackTrace();
+				}
+        		break;
+        		
+        	case "initialCharmander":
+        		try {
+					threadedComs.put("INITIAL", "Charmander");
+					state = "initial_choice";
+				} catch (InterruptedException e2) {
+					e2.printStackTrace();
+				}
+        		break;
+        		
+        	case "initialSquirtle":
+        		try {
+					threadedComs.put("INITIAL", "Squirtle");
+					state = "initial_choice";
+				} catch (InterruptedException e2) {
+					e2.printStackTrace();
 				}
         		break;
         		
         	case "submitSignup":
         		// send credentials to the ClientController for creation
 				try {
+					username = menu.currentMenu.getForms()[0];
+	        		password = menu.currentMenu.getForms()[1];
+	        		System.out.println("Username: "+username+", password: "+password);
 					threadedComs.put("SIGNUP", username, password);
 					state = "submittedSignUp";
 				} catch (InterruptedException e1) {
@@ -276,10 +305,16 @@ class Controller {
 					String r = (String)threadedComs.get(new ActualField("CONNECT_ACK"), new FormalField(String.class))[1];
 					if(r.equals("OK")) {
 						String t = (String)threadedComs.get(new ActualField("PROFILE"), new FormalField(String.class))[1];
-						user = Profile.fromJson(t);
-						state = "mainMenu";
+						if(t.equals("INITIAL")) {
+							state = "initial_choice_draw";
+							menu.changeMenu("initial_choice");
+						} else {
+							user = Profile.fromJson(t);
+							state = "mainMenu";
+							menu.changeMenu("mainMenu");
+						}
 						loggedIn = true;
-						menu.changeMenu("mainMenu");
+						
 					} else {
 						state = "connect";
 					}
@@ -289,15 +324,41 @@ class Controller {
 				}
 				break;
 				
+        	case "initial_choice_draw":
+        		menu.draw();
+        		break;
+        	
+        	case "initial_choice":
+				try {
+					String r = (String)threadedComs.get(new ActualField("INITIAL_ACK"), new FormalField(String.class))[1];
+					if(r.equals("Forbidden")) {
+						System.out.println("ERROR for initial choice : Forbidden");
+						state = "initial_choice_draw";
+					} else {
+						user = Profile.fromJson(r);
+						state = "mainMenu";
+						menu.changeMenu("mainMenu");
+					}
+				} catch (InterruptedException e2) {
+					e2.printStackTrace();
+				}
+        		break;
+				
         	case "submittedSignUp":
         		// check if user creation was successful or not
 				try {
 					String r = (String)threadedComs.get(new ActualField("SIGNUP_ACK"), new FormalField(String.class))[1];
 					if(r.equals("OK")) {
 						String t = (String)threadedComs.get(new ActualField("PROFILE"), new FormalField(String.class))[1];
-						user = Profile.fromJson(t);
-						state = "mainMenu";
-						menu.changeMenu("mainMenu");
+						if(t.equals("INITIAL")) {
+							state = "initial_choice_draw";
+							menu.changeMenu("initial_choice");
+						} else {
+							user = Profile.fromJson(t);
+							state = "mainMenu";
+							menu.changeMenu("mainMenu");
+						}
+						loggedIn = true;
 					} else {
 						state = "signup";
 					}
