@@ -23,6 +23,7 @@ class TextBox {
     boolean exists = false;
     String[] labels;
     int labelIdx = 0;
+    boolean skipable = true;
 
     public TextBox(int x, int y, int h, String label){
         this.x = x;
@@ -40,6 +41,16 @@ class TextBox {
         this.h = h;
         this.labels = labels;
         label = labels[0];
+    }
+    
+    public TextBox(int x, int y, int h, String label, boolean skipable){
+        this.x = x;
+        this.y = y;
+
+        this.h = h;
+        this.labels = new String[] {label};
+        this.label = label;
+        this.skipable = skipable;
     }
     
     public boolean exists() {
@@ -87,6 +98,8 @@ class TextBox {
     	text1 = new Text(x, y, label);
         text1.setFont(Font.font("Courier New",18));
         text1.setFill(Color.BLACK);
+        
+        if (!skipable) text1.toFront();
         root.getChildren().add(text1);
     }
     
@@ -95,6 +108,9 @@ class TextBox {
     }
     
     public void speedUpTyping(Group root) {
+    	if (!skipable) {
+    		return;
+    	}
     	timeline.jumpTo("end");
     	timeline.stop();
     	root.getChildren().removeAll(text1,text2,rect1,rect2);

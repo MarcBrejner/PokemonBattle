@@ -20,8 +20,7 @@ class Controller {
     public MenuLogic menu;
     public static Profile user;
     private List<Ability> abilityList;
-
-
+    public String choosenPokemon = "Pikachu";
 
 	public static boolean loggedIn = false;
     String username = "", password = "";
@@ -197,7 +196,7 @@ class Controller {
         		break;
         		
             case "fight":
-				state = "waitingForOtherPlayer1";
+				state = "choosePokemon";
 				break;
 
             case "hide":
@@ -257,7 +256,17 @@ class Controller {
 					e.printStackTrace();
 				}
 				break;
-
+        } //switch statement end
+        
+        if (state == "choosePokemon2") {
+	        if (action.length() >= 9) {
+	        	if (action.subSequence(0, 9).equals("choosen: ")){
+	        		//choosing pokemon
+	        		choosenPokemon = (String) action.subSequence(9, action.length());
+	       
+	        		state = "waitingForOtherPlayer1";
+	        	}	
+	        }
         }
     }
 
@@ -375,7 +384,27 @@ class Controller {
 			case "useItem":
 				break;
 
+			case "choosePokemon":
+            	//when splash screen is done drawing, choose pokemon
+            	
+            	//generation of pokemons menu
+                ArrayList<String[]> labelsPokemons = new ArrayList<String[]>();
+                for(Pokemon p : user.getPokemons()) {
+                	labelsPokemons.add(new String[]{p.getName() + " - " + p.getElement(), "choosen: "+p.getName()});
+                }
+                labelsPokemons.add(new String[]{"Back", "mainMenu"});
+                menu.menus.put("pokemons", new MenuList(menu.gc, 100, 100, labelsPokemons));
+        		state = "pokemons";
+        		menu.changeMenu("pokemons");
+        		
+        		state = "choosePokemon2";
+        		break;
+        		
+            case "choosePokemon2":
+            	menu.draw();
+            	break;
 
+            	
             case "waitingForOtherPlayer1":
             	//start drawing splash screen
             	InGame.splashScreen.draw();
@@ -383,41 +412,62 @@ class Controller {
             	break;
             	
             case "waitingForOtherPlayer2":
-            	if (!InGame.splashScreen.isDrawing()) {
-	            	try {
-						threadedComs.put("FIGHT");
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-	
-	            	//create ability menu
-					int i = 1;
-					ArrayList<String[]> labelsAbilities = new ArrayList<String[]>();
-					abilityList = user.getPokemons().get(0).getAbilities();
-	
-					for(Ability a : abilityList){
-						labelsAbilities.add(new String[]{a.getName(), "ability"+i});
-						i++;
-					}
-					menu.menus.put("abilities", new MenuList(menu.gc, 100, 100, labelsAbilities));
-					
-					//go to next state
-					state = "waitingForOtherPlayer3";
-            	}
+            	if (InGame.splashScreen.isDrawing()) break;
+            	//when done drawing, signal ready to fight
+            	try {
+					threadedComs.put("FIGHT");
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+            	//create ability menu
+				int i = 1;
+				ArrayList<String[]> labelsAbilities = new ArrayList<String[]>();
+				abilityList = user.getPokemons().get(0).getAbilities();
+
+				for(Ability a : abilityList){
+					labelsAbilities.add(new String[]{a.getName(), "ability"+i});
+					i++;
+				}
+				menu.menus.put("abilities", new MenuList(menu.gc, 100, 100, labelsAbilities));
+				
+				//go to next state
+				state = "waitingForOtherPlayer3";
+				gameElements.createTextBox(260, 300, "Waiting for other players", false);
             	break;
 
-            	
+            
             case "waitingForOtherPlayer3":
-            	//when splash screen is done drawing, search for an opponent
 				Object[] temp222 = threadedComs.getp(new ActualField("GOTFIGHT"));
 				if (temp222 == null) {
-					menu.draw();
 					break;
 				}
 				
+				try {
+					threadedComs.put("choosen pokemon",choosenPokemon);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+        		System.out.println("waiting for pokemon ack, "+choosenPokemon);
+				
+				state = "waitingForPokeAck";
+				break;
+				
+				
+            case "waitingForPokeAck":
+            	Object[] temp2222 = threadedComs.getp(new ActualField("got pokemon"));
+				if (temp2222 == null) {
+					break;
+				}
+				state = "got pokemon";
+        		break;
+        	
+            case "got pokemon":
 				//found an opponent
 				InGame.splashScreen.draw();
+				gameElements.forceRemoveTextBox();
 				
 				//draw trainer intro
                 menu.changeMenu("not your turn");

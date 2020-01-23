@@ -53,6 +53,7 @@ class SplashScreen {
             Rectangle rec = new Rectangle(x, y, gridSize, gridSize);
             rec.setFill(Color.BROWN);
             rec.setOpacity(0);
+            rec.toFront();
             root.getChildren().add(rec);
 
             //fade in effect
@@ -80,6 +81,7 @@ class SplashScreen {
             Rectangle rec = new Rectangle(x, y, gridSize, gridSize);
             rec.setFill(Color.BROWN);
             rec.setOpacity(0);
+            rec.toFront();
             root.getChildren().add(rec);
 
             //fade in effect

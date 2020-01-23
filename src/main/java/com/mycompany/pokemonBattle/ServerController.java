@@ -347,15 +347,29 @@ class Fight implements Runnable {
 			actions.put(fighter2.getUsername(), Profile.toJson(fighter1));
 
 			// TODO GET DIFFERENT POKEMON FROM USERS
-			fighterOnePokemon = fighter1.getPokemons().get(0); //get 0 hardcoded atm
-			fighterTwoPokemon = fighter2.getPokemons().get(0);
+			String pokemon1name = (String) data.get(new ActualField(fighter1.getUsername()), new FormalField(String.class))[1];
+			String pokemon2name = (String) data.get(new ActualField(fighter2.getUsername()), new FormalField(String.class))[1];
+			
+			System.out.println("Got both players pokemons:"+pokemon1name+" "+pokemon2name);
+	
+			for (Pokemon poke:fighter1.getPokemons()) {
+				if (poke.getName().equals(pokemon1name)) {
+					fighterOnePokemon = poke;
+					break;
+				}
+			}
+			for (Pokemon poke:fighter2.getPokemons()) {
+				if (poke.getName().equals(pokemon2name)) {
+					fighterTwoPokemon = poke;
+					break;
+				}
+			}
 
 			updatePokemons();
 
 			while(true){
 
 				//Receive and process action of player 1.
-				System.out.println("meow");
 				actions.put(fighter1.getUsername(),"GO");
 				Object[] fighterOneAction = actions.get(new ActualField(fighter1.getUsername()),new FormalField(String.class),new FormalField(String.class)); // format: name, type, action
 				//System.out.println("Got action from player 1: "+fighterOneAction[2]);

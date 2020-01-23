@@ -18,8 +18,10 @@ class GameElements {
     
     public void getPokemonViews() {
     	String path = System.getProperty("user.dir") + "/src/main/java/com/mycompany/pokemonBattle/";
-    	pokemon1View = new PokemonView(root, -200, 400, path+"pikaBack.png",2);
-        pokemon2View = new PokemonView(root, 700, 100, path+"pikaFront.png",2);
+    	String pokemon1name = pokemon1.getName().toLowerCase();
+    	String pokemon2name = pokemon2.getName().toLowerCase();
+    	pokemon1View = new PokemonView(root, -200, 400, path+pokemon1name+"Back.png",2);
+        pokemon2View = new PokemonView(root, 700, 100, path+pokemon2name+"Front.png",2);
        
     	hpBar1 = new Bar(root,100-40,300-40,100,pokemon1.getHP(),Color.RED);
     	hpBar2 = new Bar(root,400-40,100-40,100,pokemon2.getHP(),Color.RED);
@@ -32,6 +34,11 @@ class GameElements {
     
     public void createTextBox(int x, int y, String[] texts) {
     	tb = new TextBox(x,y,18,texts);
+        tb.drawTyping(root);
+    }
+    
+    public void createTextBox(int x, int y, String text, boolean skipable) {
+    	tb = new TextBox(x,y,18,text, skipable);
         tb.drawTyping(root);
     }
     
@@ -54,6 +61,10 @@ class GameElements {
     }
     
     public void removeTextBox() {
+    	if (tb.skipable) tb.remove(root);
+    }
+    
+    public void forceRemoveTextBox() {
     	tb.remove(root);
     }
     
@@ -68,6 +79,7 @@ class GameElements {
     }
 
     public void draw(){
+    	System.out.println("Drawing the following pokemons (lol) : "+pokemon1.getName()+" "+pokemon2.getName());
     	pokemon1View.draw();
     	pokemon2View.draw();
     }

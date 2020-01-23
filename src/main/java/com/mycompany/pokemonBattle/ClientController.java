@@ -213,15 +213,19 @@ public class ClientController implements Runnable {
             enemy = Profile.fromJson(e);
             me = user;
             
-            GameElements.pokemon1 = myPokemon;
-            GameElements.pokemon2 = enemyPokemon;
-            mainController.put("Pokemon added");
+            String myPokemon = (String) mainController.get(new ActualField("choosen pokemon"),new FormalField(String.class))[1];
+            System.out.println("Client got the pokemon: "+myPokemon);
+            data.put(me.getUsername(),myPokemon);
 
             retreivePokemons();
+            
+            mainController.put("got pokemon");
+            
             while (fighting) {
 
             	System.out.println("Waiting for server response signal");
                 Object[] serverResponse = actions.get(new ActualField(me.getUsername()),new FormalField(String.class));
+                
                 
                 if(!fighting){
                     break;
