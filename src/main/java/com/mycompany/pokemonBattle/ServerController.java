@@ -405,24 +405,24 @@ class Fight implements Runnable {
 			if(fighterOnePokemon.getHP() <= 0 && fighterTwoPokemon.getHP() <= 0){//TODO: UPDATE EXP ETC. based on winner!
 				fighter1.setXP(fighter1.getXP()+3);
 				fighter2.setXP(fighter2.getXP()+3);
-				database.updateProfile(fighter1);
-				database.updateProfile(fighter2);
+				database.saveProfile(fighter1);
+				database.saveProfile(fighter2);
 				actions.put(fighter1.getUsername(),"DRAW");
 				actions.put(fighter2.getUsername(),"DRAW");
 				return true;
 			} else if(fighterOnePokemon.getHP() <= 0){
 				fighter1.setXP(fighter1.getXP()+2);
 				fighter2.setXP(fighter2.getXP()+4);
-				database.updateProfile(fighter1);
-				database.updateProfile(fighter2);
+				database.saveProfile(fighter1);
+				database.saveProfile(fighter2);
 				actions.put(fighter1.getUsername(),"LOSER");
 				actions.put(fighter2.getUsername(),"WINNER");
 				return true;
 			} else if(fighterTwoPokemon.getHP() <= 0){
 				fighter1.setXP(fighter1.getXP()+4);
 				fighter2.setXP(fighter2.getXP()+2);
-				database.updateProfile(fighter1);
-				database.updateProfile(fighter2);
+				database.saveProfile(fighter1);
+				database.saveProfile(fighter2);
 				actions.put(fighter1.getUsername(),"WINNER");
 				actions.put(fighter2.getUsername(),"LOSER");
 				return true;
