@@ -299,6 +299,7 @@ class Fight implements Runnable {
 	Ability rcvAbility;
 	Item rcvItem;
 	Pokemon fighterOnePokemon, fighterTwoPokemon;
+	Boolean fightRunning = true;
 
 	public Fight(String fightURI, SpaceRepository repository, SequentialSpace actions, SequentialSpace data, Database database, String fighter1, String fighter2) {
 		this.database = database;
@@ -332,18 +333,11 @@ class Fight implements Runnable {
 				//System.out.println("Got action from player 1: "+fighterOneAction[2]);
 				processAction(fighterOneAction,1);
 				updatePokemons();
-
-				//Check if any pokemon has HP <= 0 and end game if so.
-				if(fighterOnePokemon.getHP() <= 0){ //TODO: UPDATE EXP ETC. based on winner!
-					actions.put(fighter2.getUsername(),"GO");
-					break;
-				}else if(fighterTwoPokemon.getHP() <= 0){
-					actions.put(fighter2.getUsername(),"GO");
-					break;
-				}
-
-				//Update the local pokemon of the clients
-
+				actions.put(fighter1.getUsername(), "UPDATE");
+				actions.put(fighter2.getUsername(), "UPDATE");
+				actions.get(new ActualField("SERVER"), new ActualField(fighter1.getUsername()), new ActualField("UPDATE_ACK"));
+				actions.get(new ActualField("SERVER"), new ActualField(fighter2.getUsername()), new ActualField("UPDATE_ACK"));
+				if(fightEnded()) break;
 
 				//Receive and process action of player 2.
 				actions.put(fighter2.getUsername(),"GO");
@@ -352,23 +346,18 @@ class Fight implements Runnable {
 
 				processAction(fighterTwoAction,2);
 				updatePokemons();
-
-				//Check if any pokemon has HP <= 0 and end game if so.
-				if(fighterOnePokemon.getHP() <= 0){//TODO: UPDATE EXP ETC. based on winner!
-					actions.put(fighter1.getUsername(),"GO");
-					break;
-				}else if(fighterTwoPokemon.getHP() <= 0){
-					actions.put(fighter1.getUsername(),"GO");
-					break;
-				}
-				//Update the local pokemon of the clients
-				updatePokemons();
+				actions.put(fighter1.getUsername(), "UPDATE");
+				actions.put(fighter2.getUsername(), "UPDATE");
+				actions.get(new ActualField("SERVER"), new ActualField(fighter1.getUsername()), new ActualField("UPDATE_ACK"));
+				actions.get(new ActualField("SERVER"), new ActualField(fighter2.getUsername()), new ActualField("UPDATE_ACK"));
+				if(fightEnded()) break;
 			}
 
-			System.out.println("START put");
-			actions.get(new ActualField("END"));
+			//System.out.println("START put");
+			//actions.get(new ActualField("END"));
 
 			System.out.println("Fight " + fightURI + " ended !");
+			System.out.println("Updated profiles in DB");
 			repository.remove(fightURI + "/actions");
 			repository.remove(fightURI + "/data");
 			System.out.println("Removed actions and data spaces of " + fightURI);
@@ -409,7 +398,41 @@ class Fight implements Runnable {
 				//nothing
 		}
 	}
-
+	
+	//Check if any pokemon has HP <= 0 and end game if so.
+	public boolean fightEnded() {
+		try {
+			if(fighterOnePokemon.getHP() <= 0 && fighterTwoPokemon.getHP() <= 0){//TODO: UPDATE EXP ETC. based on winner!
+				fighter1.setXP(fighter1.getXP()+3);
+				fighter2.setXP(fighter2.getXP()+3);
+				database.updateProfile(fighter1);
+				database.updateProfile(fighter2);
+				actions.put(fighter1.getUsername(),"DRAW");
+				actions.put(fighter2.getUsername(),"DRAW");
+				return true;
+			} else if(fighterOnePokemon.getHP() <= 0){
+				fighter1.setXP(fighter1.getXP()+2);
+				fighter2.setXP(fighter2.getXP()+4);
+				database.updateProfile(fighter1);
+				database.updateProfile(fighter2);
+				actions.put(fighter1.getUsername(),"LOSER");
+				actions.put(fighter2.getUsername(),"WINNER");
+				return true;
+			} else if(fighterTwoPokemon.getHP() <= 0){
+				fighter1.setXP(fighter1.getXP()+4);
+				fighter2.setXP(fighter2.getXP()+2);
+				database.updateProfile(fighter1);
+				database.updateProfile(fighter2);
+				actions.put(fighter1.getUsername(),"WINNER");
+				actions.put(fighter2.getUsername(),"LOSER");
+				return true;
+			}
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
+	}
 
 	public void updatePokemons() throws InterruptedException{
 		//Update fighter ones local pokemon
@@ -418,7 +441,6 @@ class Fight implements Runnable {
 
 		data.put(fighter1.getUsername(),Pokemon.toJson(fighterOnePokemon));
 		data.put(fighter2.getUsername(),Pokemon.toJson(fighterTwoPokemon));
-
 	}
 
 	public void newestActionUsed(String user, String type, String name) throws InterruptedException{

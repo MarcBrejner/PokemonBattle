@@ -392,12 +392,41 @@ class Controller {
                 
             case "not your turn":
             	menu.draw();
-            	Object[] temp = threadedComs.getp(new ActualField("GO"));
-            	if (temp != null) {
-            		state = "right before your turn";
-            	}
+				try {
+					Object[] el = threadedComs.getp(new FormalField(String.class));
+					if (el == null) break;
+					switch((String)el[0]) {
+					case "GO":
+						state = "right before your turn";
+						break;
+					case "WINNER":
+						user.setXP(user.getXP()+4);
+						threadedComs.put("WINNER_ACK");
+						state = "endOfFight";
+						break;
+					case "LOSER":
+						user.setXP(user.getXP()+2);
+						threadedComs.put("LOSER_ACK");
+						state = "endOfFight";
+						break;
+					case "DRAW":
+						user.setXP(user.getXP()+3);
+						threadedComs.put("DRAW_ACK");
+						state = "endOfFight";
+						break;
+					}
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
             	break;
-            	
+				
+			case "endOfFight":
+				checkPokemonStatus();
+				checkProfileStatus();
+				menu.changeMenu("mainMenu");
+				state = "mainMenu";
+				break;
             	
             case "right before your turn":
             	gameElements.createTextBox(300, 350, "*POKEMON* used *ABILITY*");
@@ -528,8 +557,6 @@ class Controller {
             	
             case "members":
             	// for now just redirect to the main menu but in the end should display the list of connectedMembers
-            	checkPokemonStatus();
-            	checkProfileStatus();
             	state = "mainMenu";
             	break;
             
@@ -570,6 +597,7 @@ class Controller {
 		int XP = user.getXP(), rXP = user.getRequiredXP();
 		while(XP >= rXP) {
 			try {
+				System.out.println("TESTING PROFILE STATUS...");
 				threadedComs.put("USER_LEVEL_UP");
 				String ack = (String)threadedComs.get(new ActualField("USER_LEVEL_UP_ACK"), new FormalField(String.class))[1];
 				if (ack.equals("OK")) {
@@ -610,6 +638,7 @@ class Controller {
 			int xp = p.getXP(), rXp = p.getRequiredXP();
 			while(xp >= rXp) {
 				try {
+					System.out.println("TESTING POKEMON STATUS...");
 					threadedComs.put("POKEMON_LEVEL_UP");
 					String ack = (String)threadedComs.get(new ActualField("POKEMON_LEVEL_UP_ACK"), new FormalField(String.class))[1];
 					if (ack.equals("OK")) {
@@ -670,6 +699,7 @@ class Controller {
 
 	public void refreshUser() {
 		try {
+			System.out.println("REFRESHING USER...");
 			threadedComs.put("GET_PROFILE");
 			String profile_string = (String)threadedComs.get(new ActualField("GET_PROFILE_ACK"), new FormalField(String.class))[1];
 			user = Profile.fromJson(profile_string);
