@@ -148,7 +148,8 @@ public class ClientController implements Runnable {
 										break;
 								}
 							} else {
-								System.out.println("Action Forbidden.");
+								System.out.println("Action : " + action + " Forbidden.");
+								mainController.put(action + "_ACK", "Forbidden");
 							}
 						}
 					} else {
@@ -192,16 +193,12 @@ public class ClientController implements Runnable {
             enemy = Profile.fromJson(e);
             me = user;
 
-
+            retreivePokemons();
             while (fighting) {
 
             	System.out.println("Waiting for server response signal");
-
-				retreivePokemons();
                 Object[] serverResponse = actions.get(new ActualField(me.getUsername()),new FormalField(String.class));
-                getNewestAction();
-				retreivePokemons();
-
+                
                 if(!fighting){
                     break;
                 }
@@ -219,13 +216,33 @@ public class ClientController implements Runnable {
                         actions.put(me.getUsername(),actionType,temp[1]);
 
                         break;
+                    case "UPDATE":
+                    	getNewestAction();
+        				retreivePokemons();
+        				actions.put("SERVER", me.getUsername(), "UPDATE_ACK");
+                    	break;
                     case "DC":
                         fighting = false;
                         System.out.println("Opponent disconnected");
                         break;
-                    case "END":
-                        System.out.println("Match has ended");
+                    case "WINNER":
+                    	fighting = false;
+                    	mainController.put("WINNER");
+                    	System.out.println("You won !");
+                    	mainController.get(new ActualField("WINNER_ACK"));
                         break;
+                    case "LOSER":
+                    	fighting = false;
+                    	mainController.put("LOSER");
+                    	System.out.println("You lost...");
+                    	mainController.get(new ActualField("LOSER_ACK"));
+                    	break;
+                    case "DRAW":
+                    	fighting = false;
+                    	mainController.put("DRAW");
+                    	System.out.println("It's a draw !");
+                    	mainController.get(new ActualField("DRAW_ACK"));
+                    	break;
                 }
             }
 
@@ -241,6 +258,7 @@ public class ClientController implements Runnable {
 	}
 
 	public void retreivePokemons() throws InterruptedException {
+		System.out.println("Retrieving Pokemons...");
 		myPokemon = Pokemon.fromJson((String) data.query(new ActualField(me.getUsername()),new FormalField(String.class))[1]);
 		enemyPokemon = Pokemon.fromJson((String) data.query(new ActualField(enemy.getUsername()),new FormalField(String.class))[1]);
 
@@ -249,8 +267,8 @@ public class ClientController implements Runnable {
 
 		GameElements.pokemon1 = myPokemon;
 		GameElements.pokemon2 = enemyPokemon;
-		
-		if(myPokemon.getHP() <= 0 && enemyPokemon.getHP() <= 0){
+
+		/*if(myPokemon.getHP() <= 0 && enemyPokemon.getHP() <= 0){
             System.out.println("Both pokemons fainted, it's a draw");
             fighting = false;
         }else if(myPokemon.getHP() <= 0){
@@ -259,12 +277,13 @@ public class ClientController implements Runnable {
         }else if(enemyPokemon.getHP() <= 0){
             System.out.println("Enemy "+enemyPokemon.getName()+" fainted, you won!");
             fighting = false;
-        }
+        }*/
 
 	}
 
 	public void getNewestAction() throws InterruptedException{
-		Object t[] = data.queryp(new FormalField(String.class),new FormalField(String.class),new FormalField(String.class));
+		System.out.println("Retrieving action...");
+		Object t[] = data.query(new FormalField(String.class),new FormalField(String.class),new FormalField(String.class));
 		if(t != null){
 			String aType = t[1].equals("ABILITY") ? "ability":"item";
 			System.out.println(t[0]+" used the "+aType+" "+t[2]);
