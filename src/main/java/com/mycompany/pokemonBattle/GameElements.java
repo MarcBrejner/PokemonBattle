@@ -20,12 +20,13 @@ class GameElements {
     	this.root = root;
     	pokemon1 = new Pokemon("Pikachu");
     	pokemon2 = new Pokemon("Pikachu");
-    	String sprite1 = "C:\\Users\\X\\Documents\\GitHub\\PokemonBattle\\src\\main\\java\\com\\mycompany\\pokemonBattle\\pikaBack.png";
-    	String sprite2 = "C:\\Users\\X\\Documents\\GitHub\\PokemonBattle\\src\\main\\java\\com\\mycompany\\pokemonBattle\\machamp.png";
-    	String sprite3 = "C:\\Users\\X\\Documents\\GitHub\\PokemonBattle\\src\\main\\java\\com\\mycompany\\pokemonBattle\\trainer1.png";
-    	String sprite4 = "C:\\Users\\X\\Documents\\GitHub\\PokemonBattle\\src\\main\\java\\com\\mycompany\\pokemonBattle\\trainer2.png";
+    	String sprite1 = "com/mycompany/pokemonBattle/pikaBack.png";
+    	String sprite2 = "com/mycompany/pokemonBattle/machamp.png";
+    	String sprite3 = "com/mycompany/pokemonBattle/trainer1.png";
+    	String sprite4 = "com/mycompany/pokemonBattle/trainer2.png";
     	hpBar1 = new Bar(root,100-40,300-40,100,pokemon1.getHP(),Color.RED);
     	hpBar2 = new Bar(root,400-40,100-40,100,pokemon2.getHP(),Color.RED);
+
     	pokemon1View = new PokemonView(root, 800, 300, sprite1,2);
         pokemon2View = new PokemonView(root, -200, 100, sprite2,2);
         trainer1View = new PokemonView(root,800, 300, sprite3,2);

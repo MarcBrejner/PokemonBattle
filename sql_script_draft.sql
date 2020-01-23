@@ -77,6 +77,13 @@ INSERT INTO pokemonGame.Profile(username) VALUES ("marc");
 INSERT INTO pokemonGame.Pokemon(masterId, name, element, status, hp, maxHp, alive)
 VALUES (1, "Pikachu", "Electric", "None", 80, 80, true);
 
+INSERT INTO pokemonGame.Pokemon(masterId, name, element, status, hp, maxHp, alive)
+VALUES (4, "Pikachu", "Electric", "None", 80, 80, true);
+INSERT INTO pokemonGame.Ability(pokemonId, name, element, type, enemyEffect, selfEffect, cost, value, selfValue, enemyStatus, selfStatus)
+VALUES (4, "Bolt", "Electric", "Damage", true, false, 2, -30, 0, "Paralyzed", "None");
+INSERT INTO pokemonGame.Ability(pokemonId, name, element, type, enemyEffect, selfEffect, cost, value, selfValue, enemyStatus, selfStatus)
+VALUES (4, "Slap", "Normal", "Damage",true, false, 2, -30, 0, "None", "None");
+
 INSERT INTO pokemonGame.Ability(pokemonId, name, element, type, enemyEffect, selfEffect, cost, value, selfValue, enemyStatus, selfStatus)
 VALUES (1, "Bolt", "Electric", "Damage", true, false, 2, -30, 0, "Paralyzed", "None");
 INSERT INTO pokemonGame.Ability(pokemonId, name, element, type, enemyEffect, selfEffect, cost, value, selfValue, enemyStatus, selfStatus)
@@ -86,7 +93,7 @@ INSERT INTO pokemonGame.Item(ownerId, name, type, value, number) VALUES (1, "Pot
 
 SELECT * FROM pokemonGame.Profile;
 SELECT * FROM pokemonGame.Item WHERE id=1;
-SELECT * FROM pokemonGame.Pokemon WHERE masterId=1;
+SELECT * FROM pokemonGame.Pokemon WHERE masterId=4;
 SELECT * FROM pokemonGame.Ability WHERE pokemonId=1;
 SELECT * FROM pokemonGame.Authentication;
 

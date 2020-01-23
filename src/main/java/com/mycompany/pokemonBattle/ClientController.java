@@ -27,7 +27,7 @@ public class ClientController implements Runnable {
     public Profile user;
     public String URI;
     
-    private boolean fighting = true;
+    private boolean fighting = false;
 	
 	public ClientController(SequentialSpace threadedComs) {
 		this.threadedComs = threadedComs;
@@ -100,9 +100,10 @@ public class ClientController implements Runnable {
 
 									case "FIGHT":
 										System.out.println("Looking for an opponent...");
-										String fightURI = (String)serverController.get(new ActualField("CLIENT"), new FormalField(String.class))[1];
+										String fightURI = (String) serverController.get(new ActualField("CLIENT"), new FormalField(String.class))[1];
+										threadedComs.put("GOTFIGHT");
 										System.out.println("Got a fight ! At " + fightURI);
-										new FightHandler(profile, fightURI);
+										fightHandler(fightURI,profile);
 										System.out.println("Fight has ended !");
 										break;
 
@@ -144,10 +145,11 @@ public class ClientController implements Runnable {
 			e1.printStackTrace();
 		}
 	}
-	/*
+
 	public void fightHandler(String URI, Profile user) {
 		
 		try {
+			fighting = true;
 
             // connecting to action and data spaces
             System.out.println("Connection to tcp://" + Config.fightsHost + "/" + URI + "/actions?keep...");
@@ -166,17 +168,26 @@ public class ClientController implements Runnable {
 
 
             while (fighting) {
+
             	System.out.println("Waiting for server response signal");
+
+				retreivePokemons();
                 Object[] serverResponse = actions.get(new ActualField(me.getUsername()),new FormalField(String.class));
-                System.out.println("Got from server: "+(String)serverResponse[1]);
+                getNewestAction();
+				retreivePokemons();
+
+                //System.out.println("Got from server: "+(String)serverResponse[1]);
                 switch((String) serverResponse[1]){
                     case "GO":
+						System.out.println("Your Turn");
                     	//waiting for ability from controller
-                    	threadedComs.put("Excuse me sire, it is their turn");
-                    	Object[] temp = threadedComs.get(new ActualField("Outgoing"), new FormalField(String.class));
-                    	String ability = (String) temp[1];
-                        actions.put(me.getUsername(),"ABILITY",ability);
-                        System.out.println("Send to server: "+ability);
+
+                    	Object[] temp = threadedComs.get(new FormalField(String.class), new FormalField(String.class));
+
+                    	String actionType = temp[0].equals("ABILITY") ? "ABILITY":"ITEM";
+
+                        actions.put(me.getUsername(),actionType,temp[1]);
+
                         break;
                     case "DC":
                         fighting = false;
@@ -186,7 +197,6 @@ public class ClientController implements Runnable {
                         System.out.println("Match has ended");
                         break;
                 }
-
             }
 
         } catch (UnknownHostException e) {
@@ -199,5 +209,22 @@ public class ClientController implements Runnable {
             e.printStackTrace();
         }
 	}
-	*/
+
+	public void retreivePokemons() throws InterruptedException {
+		myPokemon = Pokemon.fromJson((String) data.query(new ActualField(me.getUsername()),new FormalField(String.class))[1]);
+		enemyPokemon = Pokemon.fromJson((String) data.query(new ActualField(enemy.getUsername()),new FormalField(String.class))[1]);
+
+		System.out.println("I have pokemon: "+myPokemon.getName()+" with HP "+myPokemon.getHP());
+		System.out.println("My opponent has pokemon: "+enemyPokemon.getName()+" with HP "+enemyPokemon.getHP());
+
+	}
+
+	public void getNewestAction() throws InterruptedException{
+		Object t[] = data.queryp(new FormalField(String.class),new FormalField(String.class),new FormalField(String.class));
+		if(t != null){
+			String aType = t[1].equals("ABILITY") ? "ability":"item";
+			System.out.println(t[0]+" used the "+aType+" "+t[2]);
+		}
+	}
+
 }
