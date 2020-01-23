@@ -12,6 +12,7 @@ class MenuLogic {
     public Hashtable<String, Menu> menus;
     public Menu currentMenu;
     public GraphicsContext gc;
+    public List<Ability> abilityList;
 
     public MenuLogic(GraphicsContext gc){
         this.gc = gc;
@@ -45,7 +46,6 @@ class MenuLogic {
         //main menu
         ArrayList<String[]> labelsMain = new ArrayList<String[]>();
         labelsMain.add(new String[]{"Fight", "fight"});
-
         labelsMain.add(new String[]{"Pokemons", "pokemons"});
         labelsMain.add(new String[]{"Items", "items"});
         labelsMain.add(new String[]{"Members", "members"});
@@ -58,21 +58,16 @@ class MenuLogic {
 
         //menu 2
         ArrayList<String[]> labels2 = new ArrayList<String[]>();
-        labels2.add(new String[]{"Pikachu", "does not matter"});
-        labels2.add(new String[]{"Achtuuu!", "does not matter"});
-        labels2.add(new String[]{"Bless you", "does not matter"});
-        menus.put("choose pokemon", new MenuList(gc, 100, 100, labels2));
+        labels2.add(new String[]{"Bolt", "ability1"});
+        labels2.add(new String[]{"Ability2", "ability2"});
+        labels2.add(new String[]{"Ability3", "ability3"});
+        labels2.add(new String[]{"Ability4", "ability4"});
+        menus.put("4abilities", new MenuList(gc, 100, 100, labels2));
 
         //menu 3
         ArrayList<String[]> labels3 = new ArrayList<String[]>();
-        labels3.add(new String[]{"DSadsa", ""});
-        labels3.add(new String[]{"dsad", ""});
-        labels3.add(new String[]{"sad", ""});
-        labels3.add(new String[]{"Cool", ""});
-        labels3.add(new String[]{"Duck", ""});
-        labels3.add(new String[]{"F", ""});
-        labels3.add(new String[]{"Back", "mainMenu"});
-        menus.put("menu3", new MenuRect(gc, 100, 100, labels3, 0, 4));
+        labels3.add(new String[]{"The window is frozen cause it aint your turn", ""});
+        menus.put("frozenMenu", new MenuRect(gc, 100, 100, labels3, 0, 4));
 
         currentMenu = menus.get(menuState);
     }
@@ -108,10 +103,12 @@ class MenuLogic {
     }
 
     public void generateAbilityMenu(List<Ability> abilityList, Hashtable<String, Menu> menus){
-            ArrayList<String[]> labels1 = new ArrayList<String[]>();
+
+            ArrayList<String[]> labels2 = new ArrayList<String[]>();
+
             for(int i = 1; i <= Controller.MAX_ABILITY; i++ ){
-                labels1.add(new String[]{abilityList.get(i-1).getName() , "Ability"+i});
+                labels2.add(new String[]{abilityList.get(i-1).getName() , "Ability"+i});
             }
-            menus.put("inFight", new MenuList(gc, 100, 400, labels1));
+            menus.put("4abilities", new MenuList(gc, 100, 100, labels2));
     }
 }

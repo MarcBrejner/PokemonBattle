@@ -19,9 +19,15 @@ class Controller {
     public SpaceRepository localRepository;
     public MenuLogic menu;
     public static Profile user;
+    private List<Ability> abilityList;
+
+
+
+	public static boolean loggedIn = false;
     String username = "", password = "";
     boolean shifted = false, caps = false;
     public static final int MAX_ABILITY = 4;
+    public String selectedAbility = "";
 
     GameElements gameElements;
 
@@ -168,6 +174,18 @@ class Controller {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+
+				int i = 1;
+				ArrayList<String[]> labelsAbilities = new ArrayList<String[]>();
+				abilityList = user.getPokemons().get(0).getAbilities();
+
+				for(Ability a : abilityList){
+					labelsAbilities.add(new String[]{a.getName(), "ability"+i});
+					i++;
+				}
+				menu.menus.put("abilities", new MenuList(menu.gc, 100, 100, labelsAbilities));
+				menu.changeMenu("abilities");
+
 				state = "waitingForOtherPlayer";
 				break;
 
@@ -185,6 +203,49 @@ class Controller {
             case "does not matter":
             	state = "preFightAnimation1";
             	menu.changeMenu("inFight");
+            	break;
+            	
+            case "ability1":
+				// TODO GET ABILITY FROM USER, DAMAGE VALUE FROM DB IS INCORRECT, ABILITES FROM DB GIVE 0 DMG!
+				Ability ab1 = abilityList.get(0);
+				try {
+					threadedComs.put("ABILITY", Ability.toJson(ab1));
+					System.out.println("Used ability: "+ab1.getName());
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				break;
+            case "ability2":
+				// TODO GET ABILITY FROM USER, DAMAGE VALUE FROM DB IS INCORRECT, ABILITES FROM DB GIVE 0 DMG!
+            	Ability ab2 = abilityList.get(1);; //abilityList.get(1);
+				try {
+					threadedComs.put("ABILITY", Ability.toJson(ab2));
+					System.out.println("Used ability: "+ab2.getName());
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				break;
+            case "ability3":
+				// TODO GET ABILITY FROM USER, DAMAGE VALUE FROM DB IS INCORRECT, ABILITES FROM DB GIVE 0 DMG!
+				Ability ab3 = abilityList.get(2);
+				try {
+					threadedComs.put("ABILITY", Ability.toJson(ab3));
+					System.out.println("Used ability: "+ab3.getName());
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				break;
+            case "ability4":
+				// TODO GET ABILITY FROM USER, DAMAGE VALUE FROM DB IS INCORRECT, ABILITES FROM DB GIVE 0 DMG!
+				Ability ab4 = abilityList.get(3);
+				try {
+					threadedComs.put("ABILITY", Ability.toJson(ab4));
+					System.out.println("Used ability: "+ab4.getName());
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				break;
+
         }
     }
 
@@ -232,6 +293,7 @@ class Controller {
 						String t = (String)threadedComs.get(new ActualField("PROFILE"), new FormalField(String.class))[1];
 						user = Profile.fromJson(t);
 						state = "mainMenu";
+						loggedIn = true;
 						menu.changeMenu("mainMenu");
 					} else {
 						state = "connect";
@@ -267,57 +329,56 @@ class Controller {
 			case "useItem":
 				break;
 
-			case "useAbility1":
-				Ability ab1 = user.getPokemons().get(0).getAbilities().get(0);
-				try {
-					threadedComs.put("ABILITY",Ability.toJson(ab1));
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				break;
-
-			case "useAbility2":
-				Ability ab2 = user.getPokemons().get(0).getAbilities().get(0);
-				try {
-					threadedComs.put("ABILITY",Ability.toJson(ab2));
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				break;
-
-			case "useAbility3":
-				Ability ab3 = user.getPokemons().get(0).getAbilities().get(0);
-				try {
-					threadedComs.put("ABILITY",Ability.toJson(ab3));
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				break;
-
-			case "useAbility4":
-				Ability ab4 = user.getPokemons().get(0).getAbilities().get(0);
-				try {
-					threadedComs.put("ABILITY",Ability.toJson(ab4));
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				break;
 
             case "waitingForOtherPlayer":
             	// Maybe add a loading screen here ?
                 //get from tuple space...
-                InGame.splashScreen.draw();
+				try {
+					threadedComs.get(new ActualField("GOTFIGHT"));
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				InGame.splashScreen.draw();
+
                 state = "waitingForSplash";
                 break;
 
             case "waitingForSplash":
                 if (!InGame.splashScreen.isDrawing()) {
                     //wait until splash animation is over
-                    state = "fightIntro";
+                    state = "waitingForSplashAgain";
+                    InGame.splashScreen.draw();
+                }
+                break;
+                
+            case "waitingForSplashAgain":
+            	if (!InGame.splashScreen.isDrawing()) {
+                    //wait until splash animation is over
+                    //state = "not your turn";
+
+					state = "inBattle";
                 }
                 break;
 
-            case "fightIntro":
+			case "inBattle":
+				menu.draw();
+				break;
+                
+            case "not your turn":
+            	//System.out.println("Not your turn...");
+            	/*
+    			try {
+    				threadedComs.get(new ActualField("Excuse me sire, it is their turn"));
+    			} catch (InterruptedException e) {
+    				// TODO Auto-generated catch block
+    				e.printStackTrace();
+    			}
+    			*/
+    			//System.out.println("Your turn...");
+    			state = "your turn";
+            	break;
+                
+            case "fightIntroTEMP":
                 InGame.splashScreen.draw();
                 gameElements.draw();
                 gameElements.trainer1View.glide(100);
@@ -516,7 +577,19 @@ class Controller {
 	public static Profile getUser() {
 		return user;
 	}
-	
+
+	public void setPokemon(int number, Pokemon pokemon) {
+		if (number == 1) {
+			gameElements.pokemon1.setHP(pokemon.getHP());
+		} else {
+			gameElements.pokemon2.setHP(pokemon.getHP());
+		}
+	}
+
+	public static boolean isLoggedIn() {
+		return loggedIn;
+	}
+
 	public void refreshUser() {
 		try {
 			threadedComs.put("GET_PROFILE");

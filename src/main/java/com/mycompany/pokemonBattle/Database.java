@@ -34,7 +34,7 @@ public class Database {
 			System.out.println("Driver found...");
 
             //connection to database
-            this.conn = DriverManager.getConnection("jdbc:mysql://" + Config.db_host + ":3307 /" + db + "?serverTimezone=UTC", account, pwd);
+            this.conn = DriverManager.getConnection("jdbc:mysql://" + Config.db_host + ":3306 /" + db + "?serverTimezone=UTC", account, pwd);
             System.out.println("Established connection...");
 
             // Prepared Statement

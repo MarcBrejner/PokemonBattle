@@ -4,15 +4,23 @@ import org.jspace.ActualField;
 import org.jspace.FormalField;
 import org.jspace.RemoteSpace;
 import org.jspace.SequentialSpace;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.UnknownHostException;
 
 public class ClientController implements Runnable {
 	
 	public String username, password, status;
 	private SequentialSpace mainController;
+	
+	//from fightHandler:
+	private Pokemon myPokemon, enemyPokemon;
+    private Profile me, enemy;
+    public RemoteSpace actions,data;
+    public String action;
+    public Profile user;
+    public String URI;
+    
+    private boolean fighting = false;
 	
 	public ClientController(SequentialSpace mainController) {
 		this.mainController = mainController;
@@ -32,7 +40,7 @@ public class ClientController implements Runnable {
 
 			Boolean connected = true;
 			while(connected) {
-				System.out.println("Waiting for connection credentials from mainController...");
+				System.out.println("Waiting for connection credentials from threadedComs...");
 				Object[] credentials = mainController.get(new FormalField(String.class), new FormalField(String.class), new FormalField(String.class));
 				String request = (String)credentials[0];
 				username = (String)credentials[1];
@@ -79,7 +87,7 @@ public class ClientController implements Runnable {
 								|| action.equals("ITEMS")
 								|| action.equals("USER_LEVEL_UP")
 								|| action.equals("POKEMON_LEVEL_UP")
-									){
+							){
 								serverController.put("SERVER", action);
 								String response;
 								switch(action){
@@ -96,9 +104,10 @@ public class ClientController implements Runnable {
 
 									case "FIGHT":
 										System.out.println("Looking for an opponent...");
-										String fightURI = (String)serverController.get(new ActualField("CLIENT"), new FormalField(String.class))[1];
+										String fightURI = (String) serverController.get(new ActualField("CLIENT"), new FormalField(String.class))[1];
+										mainController.put("GOTFIGHT");
 										System.out.println("Got a fight ! At " + fightURI);
-										fightHandler(fightURI, profile);
+										fightHandler(fightURI,profile);
 										System.out.println("Fight has ended !");
 										break;
 										
@@ -166,56 +175,97 @@ public class ClientController implements Runnable {
 	public void fightHandler(String URI, Profile user) {
 		
 		try {
-			// connecting to action and data spaces
-			System.out.println("Connection to tcp://" + Config.fightsHost + "/" + URI + "/actions?keep...");
-			System.out.println("Connection to tcp://" + Config.fightsHost + "/" + URI + "/data?keep...");
-			RemoteSpace actions = new RemoteSpace("tcp://" + Config.fightsHost + "/" + URI + "/actions?keep");
-			RemoteSpace data = new RemoteSpace("tcp://" + Config.fightsHost + "/" + URI + "/data?keep");
-			System.out.println("Connected to data and actions spaces");
-			BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
-			System.out.println("Waiting for opponent data reception...");
-			String e = (String)actions.get(new ActualField(user.getUsername()), new FormalField(String.class))[1];
-			System.out.println("Received data : " + e);
-			Profile enemy = Profile.fromJson(e);
-			mainController.put("FIGHT_ACK");
-			String action;
-			while(true) {
-				System.out.println("Waiting for action input...");
-				action = (String) actions.get(new FormalField(String.class))[0];
-				System.out.println("ACTION RECEIVED : " + action);
-				if(action.equals("BYE")) {
-					actions.put("BYE_ACK");
-					actions.put("END");
-					break;
-				} else if(action.equals("START")) {
-					System.out.println("THE FIGHT CAN START !");
-				} else {
-					// depending on the action different types of data and behaviors can occur
-					System.out.println("Waiting to receive data...");
-					String data_received = (String)data.get(new FormalField(String.class))[0];
-					System.out.println("DATA : " + data_received);
-				}
-				System.out.println("Type an action to make :");
-				String action_input = input.readLine();
-				actions.put(action_input);
-				if(action_input.equals("BYE")){
-					System.out.println("Waiting for acknowledgment of BYE...");
-					actions.get(new ActualField("BYE_ACK"));
-					break;
-				}
-				System.out.println("Type data to send :");
-				String data_input = input.readLine();
-				data.put(data_input);
-			}
+			fighting = true;
 
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
+            // connecting to action and data spaces
+            System.out.println("Connection to tcp://" + Config.fightsHost + "/" + URI + "/actions?keep...");
+            System.out.println("Connection to tcp://" + Config.fightsHost + "/" + URI + "/data?keep...");
+            actions = new RemoteSpace("tcp://" + Config.fightsHost + "/" + URI + "/actions?keep");
+            data = new RemoteSpace("tcp://" + Config.fightsHost + "/" + URI + "/data?keep");
+            System.out.println("Connected to data and actions spaces");
+
+            //BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
+
+            System.out.println("Waiting for opponent data reception...");
+            String e = (String) actions.get(new ActualField(user.getUsername()), new FormalField(String.class))[1];
+            System.out.println("Received data : " + e);
+            enemy = Profile.fromJson(e);
+            me = user;
+
+
+            while (fighting) {
+
+            	System.out.println("Waiting for server response signal");
+
+				retreivePokemons();
+                Object[] serverResponse = actions.get(new ActualField(me.getUsername()),new FormalField(String.class));
+                getNewestAction();
+				retreivePokemons();
+
+                if(!fighting){
+                    break;
+                }
+
+                //System.out.println("Got from server: "+(String)serverResponse[1]);
+                switch((String) serverResponse[1]){
+                    case "GO":
+						System.out.println("Your Turn");
+                    	//waiting for ability from controller
+
+                    	Object[] temp = mainController.get(new FormalField(String.class), new FormalField(String.class));
+
+                    	String actionType = temp[0].equals("ABILITY") ? "ABILITY":"ITEM";
+
+                        actions.put(me.getUsername(),actionType,temp[1]);
+
+                        break;
+                    case "DC":
+                        fighting = false;
+                        System.out.println("Opponent disconnected");
+                        break;
+                    case "END":
+                        System.out.println("Match has ended");
+                        break;
+                }
+            }
+
+        } catch (UnknownHostException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+	}
+
+	public void retreivePokemons() throws InterruptedException {
+		myPokemon = Pokemon.fromJson((String) data.query(new ActualField(me.getUsername()),new FormalField(String.class))[1]);
+		enemyPokemon = Pokemon.fromJson((String) data.query(new ActualField(enemy.getUsername()),new FormalField(String.class))[1]);
+
+		System.out.println("I have pokemon: "+myPokemon.getName()+" with HP "+myPokemon.getHP());
+		System.out.println("My opponent has pokemon: "+enemyPokemon.getName()+" with HP "+enemyPokemon.getHP());
+
+		if(myPokemon.getHP() <= 0 && enemyPokemon.getHP() <= 0){
+            System.out.println("Both pokemons fainted, it's a draw");
+            fighting = false;
+        }else if(myPokemon.getHP() <= 0){
+		    System.out.println("Your "+myPokemon.getName()+" fainted, you lost");
+            fighting = false;
+        }else if(enemyPokemon.getHP() <= 0){
+            System.out.println("Enemy "+enemyPokemon.getName()+" fainted, you won!");
+            fighting = false;
+        }
+
+	}
+
+	public void getNewestAction() throws InterruptedException{
+		Object t[] = data.queryp(new FormalField(String.class),new FormalField(String.class),new FormalField(String.class));
+		if(t != null){
+			String aType = t[1].equals("ABILITY") ? "ability":"item";
+			System.out.println(t[0]+" used the "+aType+" "+t[2]);
 		}
 	}
+
 }

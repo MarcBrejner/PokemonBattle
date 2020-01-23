@@ -21,7 +21,8 @@ public class Ability{
     	this.enemy = enemy;
     	this.self = self;
     	this.cost = cost;
-    	this.selfValue = value;
+    	this.value = value;
+    	this.selfValue = selfValue;
     	this.enemyStatus = enemyStatus;
     	this.selfStatus = selfStatus;
     }
@@ -104,7 +105,7 @@ public class Ability{
     public static Ability fromJson(String json){
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.create();
-        Ability gsonAbility = gson.fromJson(json, Ability.class);
+        Ability gsonAbility = gson.fromJson(json, Ability.class); //this results in an error
         return gsonAbility;
 	}
 
