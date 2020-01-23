@@ -58,9 +58,9 @@ public class ServerController {
 					if(database.createUser(username, password)) {
 						connectedMembers.put(username);
 						new Thread(new UserHandler(username, repository, database)).start();
-						lobby.put("SIGNUP", username, "OK");
+						lobby.put(username, "OK");
 					} else {
-						lobby.put("SIGNUP", username, "ERROR");
+						lobby.put(username, "Already connected");
 					}
 				}
 			}
@@ -104,19 +104,44 @@ class UserHandler implements Runnable {
 	public void run() {
 		// Keep reading incoming actions
 		System.out.println("Handler " + profile.getUsername() + " is running.");
-		System.out.println("Sending profile data to " + name);
-		String profile_string = Profile.toJson(profile); 
-		try {
-			
-			handler.put("CLIENT", profile_string);
-		} catch (InterruptedException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+		
+		if(profile.getPokemons().size() == 0) {
+			try {
+				handler.put("CLIENT", "INITIAL");
+				while(true) {
+					String pokemon_name = (String) handler.get(new ActualField("SERVER"), new ActualField("INITIAL"), new FormalField(String.class))[2];
+					if (pokemon_name.equals("Bulbasaur") || pokemon_name.equals("Charmander") || pokemon_name.equals("Squirtle")) {
+						handler.put("CLIENT", "OK");
+						System.out.println("Pokemon selected : " + pokemon_name);
+						profile = database.addPokemon(profile, new Pokemon(pokemon_name));
+						handler.put("CLIENT", Profile.toJson(profile));
+						System.out.println("ADDED POKEMON TO USER " + profile.getUsername());
+						break;
+					} else {
+						System.out.println("ERROR - Forbidden : " + pokemon_name);
+						handler.put("CLIENT", "Forbidden");
+					}
+				}
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} else {
+			System.out.println("Sending profile data to " + name);
+			String profile_string = Profile.toJson(profile); 
+			try {
+				handler.put("CLIENT", profile_string);
+			} catch (InterruptedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			System.out.println("Data sent (" + profile_string.getClass() + ") : " + profile_string);
 		}
-		System.out.println("Data sent (" + profile_string.getClass() + ") : " + profile_string);
+
 		Boolean running = true;
 		status = "IDLE";
 		while (running) {
+			System.out.println("Hanlder [" + profile.getUsername() + "] waiting...");
 			String t; // message
 			try {
 				t = (String) handler.get(new ActualField("SERVER"), new FormalField(String.class))[1];
@@ -194,6 +219,7 @@ class UserHandler implements Runnable {
 				break;
 				
 			case "MEMBERS":
+				System.out.println("Fetching members...");
 				List<Object[]> list = members.queryAll(new FormalField(String.class));
 				String[] connectedMembers = new String[list.size()];
 				for(int i=0; i < list.size(); i++) {
@@ -314,6 +340,7 @@ class Fight implements Runnable {
 
 	@Override
 	public void run() {
+		
 		// TODO Auto-generated method stub
 		try {
 			actions.put(fighter1.getUsername(), Profile.toJson(fighter2));
@@ -328,6 +355,7 @@ class Fight implements Runnable {
 			while(true){
 
 				//Receive and process action of player 1.
+				System.out.println("meow");
 				actions.put(fighter1.getUsername(),"GO");
 				Object[] fighterOneAction = actions.get(new ActualField(fighter1.getUsername()),new FormalField(String.class),new FormalField(String.class)); // format: name, type, action
 				//System.out.println("Got action from player 1: "+fighterOneAction[2]);
@@ -402,7 +430,7 @@ class Fight implements Runnable {
 	//Check if any pokemon has HP <= 0 and end game if so.
 	public boolean fightEnded() {
 		try {
-			if(fighterOnePokemon.getHP() <= 0 && fighterTwoPokemon.getHP() <= 0){//TODO: UPDATE EXP ETC. based on winner!
+			if(fighterOnePokemon.getHP() <= 0 && fighterTwoPokemon.getHP() <= 0){
 				fighter1.setXP(fighter1.getXP()+3);
 				fighter2.setXP(fighter2.getXP()+3);
 				database.saveProfile(fighter1);

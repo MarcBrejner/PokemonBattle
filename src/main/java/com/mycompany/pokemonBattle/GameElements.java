@@ -77,6 +77,13 @@ class GameElements {
     	hpBar2.draw();
     }
     
+    public void removeAll() {
+    	pokemon1View.remove();
+    	pokemon2View.remove();
+    	hpBar1.remove();
+    	hpBar2.remove();
+    }
+    
     public void updateBars() {
     	hpBar1.changeContent(pokemon1.getHP());
     	hpBar2.changeContent(pokemon2.getHP());

@@ -27,6 +27,13 @@ class MenuLogic {
         labelsWelcome.add(new String[]{"Sign up", "signup"});
         menus.put("welcome", new MenuList(gc, 100, 100, labelsWelcome));
         
+        //Initial choice of pokemon menu
+        ArrayList<String[]> labelsInitial = new ArrayList<String[]>();
+        labelsInitial.add(new String[] {"Bulbasaur", "initialBulbasaur"});
+        labelsInitial.add(new String[] {"Charmander", "initialCharmander"});
+        labelsInitial.add(new String[] {"Squirtle", "initialSquirtle"});
+        menus.put("initial_choice", new MenuList(gc, 100, 100, labelsInitial));
+        
         //Connection menu
         ArrayList<String[]> labelsConnection = new ArrayList<String[]>();
         labelsConnection.add(new String[]{"Username :", "form"});

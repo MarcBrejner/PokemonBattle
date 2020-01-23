@@ -52,12 +52,7 @@ public class ClientController implements Runnable {
 				
 				//awaiting acknowledgement
 				try {
-					String resp;
-					if(request.equals("CONNECT")) {
-						resp = (String)lobby.get(new ActualField(username), new FormalField(String.class))[1];
-					} else {
-						resp = (String)lobby.get(new ActualField("SIGNUP"), new ActualField(username), new FormalField(String.class))[2];
-					}
+					String resp = (String)lobby.get(new ActualField(username), new FormalField(String.class))[1];
 					if (resp.equals("OK")) {
 						System.out.println("Authentication successful");
 						mainController.put(request + "_ACK", "OK");
@@ -70,9 +65,36 @@ public class ClientController implements Runnable {
 						System.out.println("Waiting for data reception...");
 						String t = (String)serverController.get(new ActualField("CLIENT"), new FormalField(String.class))[1];
 						System.out.println("Received data : " + t);
-						mainController.put("PROFILE", t);
-						Profile profile = Profile.fromJson(t);
-
+						Profile profile = null;
+						if(t.equals("INITIAL")) {
+							try {
+								mainController.put("PROFILE", "INITIAL");
+								while(true) {
+									String pokemon_name = (String) mainController.get(new ActualField("INITIAL"), new FormalField(String.class))[1];
+									if (pokemon_name.equals("Bulbasaur") || pokemon_name.equals("Charmander") || pokemon_name.equals("Squirtle")) {
+										serverController.put("SERVER", "INITIAL", pokemon_name);
+										String initial_resp = (String)serverController.get(new ActualField("CLIENT"), new FormalField(String.class))[1];
+										if(initial_resp.equals("OK")) {
+											String updated_profile_string = (String)serverController.get(new ActualField("CLIENT"), new FormalField(String.class))[1];
+											profile = Profile.fromJson(updated_profile_string);
+											mainController.put("INITIAL_ACK", updated_profile_string);
+											break;
+										} else {
+											mainController.put("INITIAL_ACK", initial_resp);
+										}
+									} else {
+										mainController.put("INITIAL_ACK", "Forbidden");
+									}
+								}
+							} catch (InterruptedException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}	
+						} else {
+							mainController.put("PROFILE", t);
+							profile = Profile.fromJson(t);
+						}
+						
 						// Keep sending whatever the user types
 						Boolean registered = true;
 						while(registered) {
@@ -83,8 +105,6 @@ public class ClientController implements Runnable {
 								|| action.equals("MEMBERS")
 								|| action.equals("FIGHT")
 								|| action.equals("DISCONNECT")
-								|| action.equals("POKEMONS")
-								|| action.equals("ITEMS")
 								|| action.equals("USER_LEVEL_UP")
 								|| action.equals("POKEMON_LEVEL_UP")
 							){
@@ -192,6 +212,10 @@ public class ClientController implements Runnable {
             System.out.println("Received data : " + e);
             enemy = Profile.fromJson(e);
             me = user;
+            
+            GameElements.pokemon1 = myPokemon;
+            GameElements.pokemon2 = enemyPokemon;
+            mainController.put("Pokemon added");
 
             retreivePokemons();
             while (fighting) {
