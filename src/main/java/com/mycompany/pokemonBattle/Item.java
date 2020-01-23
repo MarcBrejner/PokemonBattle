@@ -20,16 +20,24 @@ public class Item {
 		this.number = number;
 	}
 	
-	private static String[] all_items = new String[] {"Potion", "Super potion"};
+	private static String[] all_items = new String[] {"Candy", "Potion", "Super candy", "Super potion"};
 
 	public Item(String name) {
 		this.name = name;
 		this.number = 1;
 		switch(name) {
+			case "Candy":
+				candy();
+				break;
 			case "Potion":
 				potion();
+				break;
+			case "Super candy":
+				superCandy();
+				break;
 			case "Super potion":
 				superPotion();
+				break;
 		}
 	}
 	
@@ -78,9 +86,19 @@ public class Item {
 
 	// one function per type of item that can be generated
 
+	private void candy() {
+		type = "XP";
+		value = 3;
+	}
+	
 	private void potion() {
 		type = "Heal";
 		value = 25;
+	}
+	
+	private void superCandy() {
+		type = "Level";
+		value = 1;
 	}
 
 	private void superPotion() {

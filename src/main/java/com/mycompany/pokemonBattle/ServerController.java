@@ -173,6 +173,9 @@ class UserHandler implements Runnable {
 						p.setLevel(p.getLevel()+1);
 						p.setXP(xp - rXp);
 						p.setRequiredXP(p.getLevel()*2);
+						int mHP = p.getMaxHP();
+						p.setMaxHP(mHP + (p.getLevel()-1)*(int)(mHP*0.2));
+						p.setHP(p.getMaxHP());
 						//pick randomly a new ability
 						Ability new_ability = Ability.pickRandom();
 						//update database and retrieve latest version of pokemon
