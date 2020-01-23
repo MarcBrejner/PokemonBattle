@@ -1,6 +1,7 @@
 package com.mycompany.pokemonBattle;
 
 import javafx.scene.Group;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 import javafx.animation.FadeTransition;
@@ -50,6 +51,7 @@ class SplashScreen {
         int delay = 100;
         while(true){
             Rectangle rec = new Rectangle(x, y, gridSize, gridSize);
+            rec.setFill(Color.BROWN);
             rec.setOpacity(0);
             root.getChildren().add(rec);
 
@@ -76,6 +78,7 @@ class SplashScreen {
         delay = 100;
         while(true){
             Rectangle rec = new Rectangle(x, y, gridSize, gridSize);
+            rec.setFill(Color.BROWN);
             rec.setOpacity(0);
             root.getChildren().add(rec);
 

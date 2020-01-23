@@ -168,30 +168,9 @@ class Controller {
         		break;
         		
             case "fight":
-				try {
-					threadedComs.put("FIGHT");
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-
-				int i = 1;
-				ArrayList<String[]> labelsAbilities = new ArrayList<String[]>();
-				abilityList = user.getPokemons().get(0).getAbilities();
-
-				for(Ability a : abilityList){
-					labelsAbilities.add(new String[]{a.getName(), "ability"+i});
-					i++;
-				}
-				menu.menus.put("abilities", new MenuList(menu.gc, 100, 100, labelsAbilities));
-				menu.changeMenu("abilities");
-
-				state = "waitingForOtherPlayer";
+				state = "waitingForOtherPlayer1";
 				break;
 
-            case "attack":
-            	gameElements.commenceAttack();	
-            	break;
             case "hide":
             	gameElements.pokemon1View.remove();
             	gameElements.hpBar1.remove();
@@ -211,6 +190,7 @@ class Controller {
 				try {
 					threadedComs.put("ABILITY", Ability.toJson(ab1));
 					System.out.println("Used ability: "+ab1.getName());
+					state = "right after your turn";
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -221,6 +201,7 @@ class Controller {
 				try {
 					threadedComs.put("ABILITY", Ability.toJson(ab2));
 					System.out.println("Used ability: "+ab2.getName());
+					state = "right after your turn";
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -231,6 +212,7 @@ class Controller {
 				try {
 					threadedComs.put("ABILITY", Ability.toJson(ab3));
 					System.out.println("Used ability: "+ab3.getName());
+					state = "right after your turn";
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -241,6 +223,7 @@ class Controller {
 				try {
 					threadedComs.put("ABILITY", Ability.toJson(ab4));
 					System.out.println("Used ability: "+ab4.getName());
+					state = "right after your turn";
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -258,6 +241,8 @@ class Controller {
     public void stateHandler(){
     	int tbx = 50;
     	int tby = 500;
+    	boolean firstTurn = true;
+    	
         switch (state) {
         	case "welcome":
         		menu.draw();
@@ -330,52 +315,140 @@ class Controller {
 				break;
 
 
-            case "waitingForOtherPlayer":
-            	// Maybe add a loading screen here ?
-                //get from tuple space...
-				try {
-					threadedComs.get(new ActualField("GOTFIGHT"));
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				InGame.splashScreen.draw();
+            case "waitingForOtherPlayer1":
+            	//start drawing splash screen
+            	InGame.splashScreen.draw();
+            	state = "waitingForOtherPlayer2";
+            	break;
+            	
+            case "waitingForOtherPlayer2":
+            	if (!InGame.splashScreen.isDrawing()) {
+	            	try {
+						threadedComs.put("FIGHT");
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+	
+	            	//create ability menu
+					int i = 1;
+					ArrayList<String[]> labelsAbilities = new ArrayList<String[]>();
+					abilityList = user.getPokemons().get(0).getAbilities();
+	
+					for(Ability a : abilityList){
+						labelsAbilities.add(new String[]{a.getName(), "ability"+i});
+						i++;
+					}
+					menu.menus.put("abilities", new MenuList(menu.gc, 100, 100, labelsAbilities));
+					
+					//go to next state
+					state = "waitingForOtherPlayer3";
+            	}
+            	break;
 
+            	
+            case "waitingForOtherPlayer3":
+            	//when splash screen is done drawing, search for an opponent
+				Object[] temp222 = threadedComs.getp(new ActualField("GOTFIGHT"));
+				if (temp222 == null) {
+					menu.draw();
+					break;
+				}
+				//found an opponent
+				InGame.splashScreen.draw();
+				
+				//draw trainer intro
+                menu.changeMenu("not your turn");
                 state = "waitingForSplash";
                 break;
-
+              
             case "waitingForSplash":
-                if (!InGame.splashScreen.isDrawing()) {
-                    //wait until splash animation is over
-                    state = "waitingForSplashAgain";
-                    InGame.splashScreen.draw();
-                }
-                break;
-                
-            case "waitingForSplashAgain":
             	if (!InGame.splashScreen.isDrawing()) {
                     //wait until splash animation is over
                     //state = "not your turn";
-
-					state = "inBattle";
+            		gameElements.getPokemonViews();
+    				gameElements.draw();
+    				gameElements.pokemon1View.glide(100);
+    				gameElements.pokemon2View.glide(400);
+					state = "waiting for glide";
                 }
                 break;
-
-			case "inBattle":
+                
+            case "waiting for glide":
+            	if (!gameElements.pokemon1View.isRunning()) {
+            		gameElements.drawBars();
+            		Object[] temp = threadedComs.getp(new ActualField("GO"));
+                	if (temp != null) {
+                		state = "right before your turn4";
+                	} else {
+                		state = "not your turn";
+                	}
+            	}
+            	break;
+				
+			case "your turn":
 				menu.draw();
 				break;
                 
             case "not your turn":
-            	//System.out.println("Not your turn...");
-            	/*
-    			try {
-    				threadedComs.get(new ActualField("Excuse me sire, it is their turn"));
-    			} catch (InterruptedException e) {
-    				// TODO Auto-generated catch block
-    				e.printStackTrace();
-    			}
-    			*/
-    			//System.out.println("Your turn...");
-    			state = "your turn";
+            	menu.draw();
+            	Object[] temp = threadedComs.getp(new ActualField("GO"));
+            	if (temp != null) {
+            		state = "right before your turn";
+            	}
+            	break;
+            	
+            	
+            case "right before your turn":
+            	gameElements.createTextBox(300, 350, "*POKEMON* used *ABILITY*");
+            	state = "right before your turn2";
+            	break;
+            
+            case "right before your turn2":
+            	if (!gameElements.textBoxExists()) {
+            		//do effects
+            		gameElements.updateBars();
+                	gameElements.pokemon1View.shake();
+            		gameElements.createTextBox(300, 350, "It was *SOMETHING* effective");
+                	state = "right before your turn3";
+            	}
+            	break;
+           
+            case "right before your turn3":
+            	if (!gameElements.textBoxExists()) {
+                	state = "right before your turn4";
+            	}
+            	break;
+            	
+            case "right before your turn4":	
+            	state = "your turn";
+        		menu.changeMenu("abilities");
+            	break;
+            
+            case "right after your turn":
+            	gameElements.createTextBox(300, 350, "*POKEMON* used *ABILITY*");
+            	state = "right after your turn2";
+            	break;
+            
+            case "right after your turn2":
+            	if (!gameElements.textBoxExists()) {
+            		//do effects
+            		gameElements.updateBars();
+                	gameElements.pokemon2View.shake();
+            		gameElements.createTextBox(300, 350, "It was *SOMETHING* effective");
+                	state = "right after your turn3";
+            	}
+            	break;
+            
+            case "right after your turn3":
+            	if (!gameElements.textBoxExists()) {
+                	state = "right after your turn4";
+            	}
+            	break;
+            
+            case "right after your turn4":
+            	menu.changeMenu("not your turn");
+            	state = "not your turn";
             	break;
                 
             case "fightIntroTEMP":

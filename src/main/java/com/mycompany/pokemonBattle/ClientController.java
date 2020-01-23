@@ -211,7 +211,7 @@ public class ClientController implements Runnable {
                     case "GO":
 						System.out.println("Your Turn");
                     	//waiting for ability from controller
-
+						mainController.put("GO");
                     	Object[] temp = mainController.get(new FormalField(String.class), new FormalField(String.class));
 
                     	String actionType = temp[0].equals("ABILITY") ? "ABILITY":"ITEM";
@@ -247,6 +247,9 @@ public class ClientController implements Runnable {
 		System.out.println("I have pokemon: "+myPokemon.getName()+" with HP "+myPokemon.getHP());
 		System.out.println("My opponent has pokemon: "+enemyPokemon.getName()+" with HP "+enemyPokemon.getHP());
 
+		GameElements.pokemon1 = myPokemon;
+		GameElements.pokemon2 = enemyPokemon;
+		
 		if(myPokemon.getHP() <= 0 && enemyPokemon.getHP() <= 0){
             System.out.println("Both pokemons fainted, it's a draw");
             fighting = false;

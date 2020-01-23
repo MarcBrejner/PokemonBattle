@@ -51,6 +51,10 @@ class MenuLogic {
         labelsMain.add(new String[]{"Members", "members"});
         labelsMain.add(new String[]{"Disconnect", "disconnect"});
         menus.put("mainMenu", new MenuList(gc, 100, 100, labelsMain));
+        
+        ArrayList<String[]> labelsNotYourTurn = new ArrayList<String[]>();
+        labelsNotYourTurn.add(new String[]{"Waiting for opponent", ""});
+        menus.put("not your turn", new MenuList(gc, 100, 100, labelsNotYourTurn));
 
         //menu 1
         //generateAbilityMenu(Controller.getUser().getPokemons().get(0).getAbilities(),menus);
@@ -66,8 +70,8 @@ class MenuLogic {
 
         //menu 3
         ArrayList<String[]> labels3 = new ArrayList<String[]>();
-        labels3.add(new String[]{"The window is frozen cause it aint your turn", ""});
-        menus.put("frozenMenu", new MenuRect(gc, 100, 100, labels3, 0, 4));
+        labels3.add(new String[]{"Looking for an opponent", ""});
+        menus.put("waiting for opponent", new MenuRect(gc, 100, 100, labels3, 0, 4));
 
         currentMenu = menus.get(menuState);
     }
