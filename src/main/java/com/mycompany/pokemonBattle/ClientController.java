@@ -212,7 +212,7 @@ public class ClientController implements Runnable {
             System.out.println("Received data : " + e);
             enemy = Profile.fromJson(e);
             me = user;
-            
+
             String myPokemon = (String) mainController.get(new ActualField("choosen pokemon"),new FormalField(String.class))[1];
             System.out.println("Client got the pokemon: "+myPokemon);
             data.put(me.getUsername()+" to server",myPokemon);
@@ -245,6 +245,7 @@ public class ClientController implements Runnable {
 
                         break;
                     case "UPDATE":
+                    	mainController.put("UPDATE");
                     	getNewestAction();
         				retreivePokemons();
         				actions.put("SERVER", me.getUsername(), "UPDATE_ACK");
@@ -297,17 +298,6 @@ public class ClientController implements Runnable {
 
 		GameElements.pokemon1 = myPokemon;
 		GameElements.pokemon2 = enemyPokemon;
-
-		/*if(myPokemon.getHP() <= 0 && enemyPokemon.getHP() <= 0){
-            System.out.println("Both pokemons fainted, it's a draw");
-            fighting = false;
-        }else if(myPokemon.getHP() <= 0){
-		    System.out.println("Your "+myPokemon.getName()+" fainted, you lost");
-            fighting = false;
-        }else if(enemyPokemon.getHP() <= 0){
-            System.out.println("Enemy "+enemyPokemon.getName()+" fainted, you won!");
-            fighting = false;
-        }*/
 
 	}
 
