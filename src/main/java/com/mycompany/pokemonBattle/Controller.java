@@ -529,6 +529,7 @@ class Controller {
 						gameElements.createTextBox(300, 400, "You've won!");
 						
 						user.setXP(user.getXP()+4);
+						
 						threadedComs.put("WINNER_ACK");
 						state = "endOfFight";
 						break;
@@ -556,6 +557,7 @@ class Controller {
 				if (!gameElements.textBoxExists()) {
 					InGame.splashScreen.draw();
 					gameElements.removeAll();
+					refreshUser();
 					menu.changeMenu("mainMenu");
 					state = "endOfFight1.1";
 				}
@@ -565,7 +567,7 @@ class Controller {
 				pokemonLevelUp = false;
 				checkPokemonStatus();
 				if (pokemonLevelUp) {
-					gameElements.createTextBox(200, 300, new String[] {"Your pokemon has leveled up!","You've unlocked "+newAbility});
+					gameElements.createTextBox(100, 300, new String[] {"Your pokemon has leveled up!","You've unlocked a new Ability : "+newAbility});
 				}
 				state = "endOfFight1.2";
 				break;
@@ -575,7 +577,7 @@ class Controller {
 				profileLevelUp = false;
 				checkProfileStatus();
 				if (profileLevelUp) {
-					gameElements.createTextBox(200, 300, new String[] {"You have leveled up!","You've unlocked "+newPokemon});
+					gameElements.createTextBox(100, 300, new String[] {"You have leveled up!","You've unlocked a new Pokemon : "+newPokemon});
 				}
 				state = "endOfFight2";
 				break;
