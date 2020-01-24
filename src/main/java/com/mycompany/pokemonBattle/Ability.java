@@ -392,7 +392,7 @@ public class Ability{
     }
     
     private void submission() {
-    	this.value = 0;
+    	this.value = -40;
     	this.selfValue = 0;
     	this.enemy = false;
     	this.self = false;
