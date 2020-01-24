@@ -11,7 +11,7 @@ public class Pokemon {
 	public int id;
 	private int HP, level, XP, requiredXP;
 	private int maxHP;
-    private String name, element, status, frontImage, backImage;
+    private String name, element, status;
     private List<Ability> abilities = new ArrayList<Ability>();
 	private boolean alive;
 	

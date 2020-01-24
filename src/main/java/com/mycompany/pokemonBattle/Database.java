@@ -17,13 +17,8 @@ public class Database {
     private PreparedStatement insertCredentials, getCredentials, setPassword;
 
 	public static void main(String[] args) {
-		Database database = new Database("pokemonGame", "root", Config.db_password);
-		
-		//Profile p1 = database.getProfile("vincent");
-		//Profile p2 = database.getProfile("franck");
-		//database.authenticate("vincent", "password");
-		//database.changePassword("vincent", "pwd");
-		//System.out.println("User created : " + database.createUser("vincent", "pwd"));
+		// for tests
+		// Database database = new Database("pokemonGame", "root", Config.db_password);
 	}
 
 	public Database(String db, String account, String pwd) {
@@ -62,7 +57,6 @@ public class Database {
             ex.printStackTrace(System.err);
             System.exit(-1);
         } catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

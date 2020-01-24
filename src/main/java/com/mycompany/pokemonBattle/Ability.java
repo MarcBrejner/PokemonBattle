@@ -392,13 +392,13 @@ public class Ability{
     }
     
     private void submission() {
-    	this.value = 0;
+    	this.value = -45;
     	this.selfValue = 0;
-    	this.enemy = false;
+    	this.enemy = true;
     	this.self = false;
     	this.cost = 1;
-    	this.element = "Normal";
-    	this.type = "None";
+    	this.element = "Fighting";
+    	this.type = "Damage";
     	this.enemyStatus = "None";
     	this.selfStatus = "None";
     }

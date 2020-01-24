@@ -1,5 +1,6 @@
 #CREATE database pokemonGame DEFAULT character set utf8mb4;
 
+# for setting up, comment the DROP requests and uncomment the CREATE one
 DROP TABLE pokemonGame.Ability;
 DROP TABLE pokemonGame.Pokemon;
 DROP TABLE pokemonGame.Item;
@@ -68,59 +69,3 @@ number int,
 PRIMARY KEY(id),
 FOREIGN KEY(ownerId) REFERENCES Profile(id)
 );
-
-#INSERT INTO pokemonGame.Authentication(username, password) VALUES ("vincent", "password");
-#INSERT INTO pokemonGame.Authentication(username, password) VALUES ("franck", "password");
-#INSERT INTO pokemonGame.Authentication(username, password) VALUES ("oliver", "password");
-#INSERT INTO pokemonGame.Authentication(username, password) VALUES ("marc", "password");
-
-#INSERT INTO pokemonGame.Profile(username, level) VALUES ("vincent", 2);
-#INSERT INTO pokemonGame.Profile(username, xp) VALUES ("franck", 5);
-#INSERT INTO pokemonGame.Profile(username) VALUES ("oliver");
-#INSERT INTO pokemonGame.Profile(username) VALUES ("marc");
-
-#INSERT INTO pokemonGame.Pokemon(masterId, name, element, status, hp, maxHp, alive, xp)
-#VALUES (1, "Pikachu", "Electric", "None", 35, 35, true, 3);
-#INSERT INTO pokemonGame.Ability(pokemonId, name, element, type, enemyEffect, selfEffect, cost, value, selfValue, enemyStatus, selfStatus)
-#VALUES (1, "Bolt", "Electric", "Damage", true, false, 2, -30, 0, "Paralyzed", "None");
-#INSERT INTO pokemonGame.Ability(pokemonId, name, element, type, enemyEffect, selfEffect, cost, value, selfValue, enemyStatus, selfStatus)
-#VALUES (1, "Slap", "Normal", "Damage",true, false, 1, -30, 0, "None", "None");
-
-#INSERT INTO pokemonGame.Pokemon(masterId, name, element, status, hp, maxHp, alive, xp)
-#VALUES (2, "Pikachu", "Electric", "None", 35, 35, true, 3);
-#INSERT INTO pokemonGame.Ability(pokemonId, name, element, type, enemyEffect, selfEffect, cost, value, selfValue, enemyStatus, selfStatus)
-#VALUES (2, "Bolt", "Electric", "Damage", true, false, 2, -30, 0, "Paralyzed", "None");
-#INSERT INTO pokemonGame.Ability(pokemonId, name, element, type, enemyEffect, selfEffect, cost, value, selfValue, enemyStatus, selfStatus)
-#VALUES (2, "Slap", "Normal", "Damage",true, false, 1, -30, 0, "None", "None");
-
-#INSERT INTO pokemonGame.Pokemon(masterId, name, element, status, hp, maxHp, alive, xp)
-#VALUES (3, "Pikachu", "Electric", "None", 35, 35, true, 3);
-#INSERT INTO pokemonGame.Ability(pokemonId, name, element, type, enemyEffect, selfEffect, cost, value, selfValue, enemyStatus, selfStatus)
-#VALUES (3, "Bolt", "Electric", "Damage", true, false, 2, -30, 0, "Paralyzed", "None");
-#INSERT INTO pokemonGame.Ability(pokemonId, name, element, type, enemyEffect, selfEffect, cost, value, selfValue, enemyStatus, selfStatus)
-#VALUES (3, "Slap", "Normal", "Damage",true, false, 1, -30, 0, "None", "None");
-
-#INSERT INTO pokemonGame.Pokemon(masterId, name, element, status, hp, maxHp, alive, xp)
-#VALUES (4, "Pikachu", "Electric", "None", 35, 35, true, 3);
-#INSERT INTO pokemonGame.Ability(pokemonId, name, element, type, enemyEffect, selfEffect, cost, value, selfValue, enemyStatus, selfStatus)
-#VALUES (4, "Bolt", "Electric", "Damage", true, false, 2, -30, 0, "Paralyzed", "None");
-#INSERT INTO pokemonGame.Ability(pokemonId, name, element, type, enemyEffect, selfEffect, cost, value, selfValue, enemyStatus, selfStatus)
-#VALUES (4, "Slap", "Normal", "Damage",true, false, 1, -30, 0, "None", "None");
-
-#INSERT INTO pokemonGame.Item(ownerId, name, type, value, number) VALUES (1, "Potion", "Heal", 25, 2);
-
-#SELECT * FROM pokemonGame.Profile;
-#SELECT * FROM pokemonGame.Item WHERE id=1;
-SELECT * FROM pokemonGame.Pokemon;
-#SELECT * FROM pokemonGame.Ability WHERE pokemonId=1;
-#SELECT * FROM pokemonGame.Authentication;
-
-#SELECT * from pokemonGame.Pokemon WHERE masterId = 1 AND name = "Pikachu";
-
-#UPDATE pokemonGame.Authentication SET password = "pwd" WHERE username = "franck";
-#SELECT * FROM pokemonGame.Authentication WHERE username = "franck";
-
-#UPDATE pokemonGame.Profile SET level = 4, xp = 2 WHERE id = 1;
-#SELECT * FROM pokemonGame.Profile;
-
-#DELETE from pokemonGame.Profile WHERE id = 2;
