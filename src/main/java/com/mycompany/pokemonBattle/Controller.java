@@ -529,9 +529,6 @@ class Controller {
 					case "GO":
 						state = "right before your turn";
 						break;
-					case "UPDATE":
-						lastAbility = (String)threadedComs.get(new ActualField("ABILITY"), new FormalField(String.class))[1];
-						break;
 					case "WINNER":
 						gameElements.pokemon2View.fadeOut();
 						gameElements.createTextBox(300, 400, "You've won!");

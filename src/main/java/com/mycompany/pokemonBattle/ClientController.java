@@ -245,7 +245,6 @@ public class ClientController implements Runnable {
 
                         break;
                     case "UPDATE":
-                    	mainController.put("UPDATE");
                     	getNewestAction();
         				retreivePokemons();
         				actions.put("SERVER", me.getUsername(), "UPDATE_ACK");
