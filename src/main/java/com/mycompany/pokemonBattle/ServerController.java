@@ -19,7 +19,7 @@ public class ServerController {
 
 			repository.add("lobby", lobby);
 			repository.add("members", connectedMembers);
-			repository.add("fighters", new SequentialSpace()); // ideally a FIFO space
+			repository.add("fighters", new SequentialSpace());
 
 			repository.addGate("tcp://" + Config.serverHost + "/?keep");
 			
@@ -30,7 +30,6 @@ public class ServerController {
 			String username, password;
 			Object[] lobbyRequest;
 			while (true) {
-				// lobby
 				System.out.println("Waiting for requests");
 				lobbyRequest = lobby.get(new FormalField(String.class), new FormalField(String.class), new FormalField(String.class));
 				String request = (String) lobbyRequest[0];
@@ -45,7 +44,7 @@ public class ServerController {
 							System.out.println("ERROR : connection on already connected profile");
 							lobby.put(username, "Already connected");
 						} else {
-							// register member and creating handler
+							// register member and creating personal handler
 							connectedMembers.put(username);
 							new Thread(new UserHandler(username, repository, database)).start();
 							lobby.put(username, "OK");
@@ -53,7 +52,7 @@ public class ServerController {
 					} else {
 						lobby.put(username, "Forbidden");
 					}
-				} else {
+				} else if (request.equals("SIGNUP")){
 					System.out.println("Got a SignUp request");
 					if(database.createUser(username, password)) {
 						connectedMembers.put(username);
@@ -92,10 +91,8 @@ class UserHandler implements Runnable {
 			this.members = new RemoteSpace(membersURI);
 			this.fighters = new RemoteSpace(fightersURI);
 		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -105,6 +102,7 @@ class UserHandler implements Runnable {
 		// Keep reading incoming actions
 		System.out.println("Handler " + profile.getUsername() + " is running.");
 		
+		// make sure that the user has at least one pokemon
 		if(profile.getPokemons().size() == 0) {
 			try {
 				handler.put("CLIENT", "INITIAL");
@@ -123,7 +121,6 @@ class UserHandler implements Runnable {
 					}
 				}
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		} else {
@@ -132,17 +129,14 @@ class UserHandler implements Runnable {
 			try {
 				handler.put("CLIENT", profile_string);
 			} catch (InterruptedException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-			System.out.println("Data sent (" + profile_string.getClass() + ") : " + profile_string);
 		}
 
 		Boolean running = true;
 		status = "IDLE";
 		while (running) {
-			System.out.println("Hanlder [" + profile.getUsername() + "] waiting...");
-			String t; // message
+			String t;
 			try {
 				t = (String) handler.get(new ActualField("SERVER"), new FormalField(String.class))[1];
 				// refresh the profile instance after a fight to get changes
@@ -153,7 +147,6 @@ class UserHandler implements Runnable {
 				System.out.println("Handler for " + profile.getUsername() + " received ACTION : " + t);
 				running = actionHandler(t);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -243,7 +236,7 @@ class UserHandler implements Runnable {
 				members.getp(new ActualField(profile.getUsername()));
 				System.out.println("User " + profile.getUsername() + " removed from connectedMembers");
 				handler.put("CLIENT", "OK");
-				System.out.println("Waiting for ACK to shutdown Thread...");
+				// wait for the ACK to shutdown Thread
 				handler.get(new ActualField("SERVER"), new ActualField("OK_ACK"));
 				handlers.remove("handlers/" + profile.getUsername());
 				System.out.println("Handler " + profile.getUsername() + " removed from repository");
@@ -263,6 +256,7 @@ class UserHandler implements Runnable {
 	}
 }
 
+// handler that will generate all the fights
 class FightCreationHandler implements Runnable {
 
 	String fightersURI = "tcp://" + Config.serverHost + "/fighters?keep";
@@ -277,17 +271,14 @@ class FightCreationHandler implements Runnable {
 			this.fightsRepository = new SpaceRepository();
 			this.fightsRepository.addGate("tcp://" + Config.fightsHost + "/?keep");
 		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
 		while(true) {
 			try {
 				String fighter1 = (String) fighters.get(new FormalField(String.class), new ActualField("SEARCHING"))[0];
@@ -298,8 +289,7 @@ class FightCreationHandler implements Runnable {
 				System.out.println("Creating fight " + fightURI);
 				SequentialSpace actions = new SequentialSpace();
 				SequentialSpace data = new SequentialSpace();
-				System.out.println("ADDING SPACE tcp://" + Config.fightsHost + "/" + fightURI + "/actions?keep");
-				System.out.println("ADDING SPACE tcp://" + Config.fightsHost + "/" + fightURI + "/data?keep");
+				// add spaces to repository to allow remote connection from the clients
 				fightsRepository.add(fightURI + "/actions", actions);
 				fightsRepository.add(fightURI + "/data", data);
 				new Thread(new Fight(fightURI, fightsRepository, actions, data, database, fighter1, fighter2)).start();
@@ -308,16 +298,16 @@ class FightCreationHandler implements Runnable {
 				fighters.put(fighter2, "FIGHT", fightURI);
 	
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
 	}
 }
 
+// handle a fight process
 class Fight implements Runnable {
 
-	SequentialSpace actions, data; // might be better as FIFOSpaces as well
+	SequentialSpace actions, data;
 	SpaceRepository repository;
 	String fightURI;
 	Database database;
@@ -341,12 +331,11 @@ class Fight implements Runnable {
 	@Override
 	public void run() {
 		
-		// TODO Auto-generated method stub
 		try {
 			actions.put(fighter1.getUsername(), Profile.toJson(fighter2));
 			actions.put(fighter2.getUsername(), Profile.toJson(fighter1));
-
-			// TODO GET DIFFERENT POKEMON FROM USERS
+			
+			// retrieve the selected pokemon by each fighter
 			String pokemon1name = (String) data.get(new ActualField(fighter1.getUsername()+" to server"), new FormalField(String.class))[1];
 			String pokemon2name = (String) data.get(new ActualField(fighter2.getUsername()+" to server"), new FormalField(String.class))[1];
 			
@@ -373,7 +362,6 @@ class Fight implements Runnable {
 				//Receive and process action of player 1.
 				actions.put(fighter1.getUsername(),"GO");
 				Object[] fighterOneAction = actions.get(new ActualField(fighter1.getUsername()),new FormalField(String.class),new FormalField(String.class)); // format: name, type, action
-				//System.out.println("Got action from player 1: "+fighterOneAction[2]);
 				processAction(fighterOneAction,1);
 				updatePokemons();
 				actions.put(fighter1.getUsername(), "UPDATE");
@@ -385,7 +373,6 @@ class Fight implements Runnable {
 				//Receive and process action of player 2.
 				actions.put(fighter2.getUsername(),"GO");
 				Object[] fighterTwoAction = actions.get(new ActualField(fighter2.getUsername()),new FormalField(String.class),new FormalField(String.class));
-				//System.out.println("Got action from player 2: "+(String) fighterTwoAction[2]);
 
 				processAction(fighterTwoAction,2);
 				updatePokemons();
@@ -396,17 +383,12 @@ class Fight implements Runnable {
 				if(fightEnded()) break;
 			}
 
-			//System.out.println("START put");
-			//actions.get(new ActualField("END"));
-
 			System.out.println("Fight " + fightURI + " ended !");
-			System.out.println("Updated profiles in DB");
 			repository.remove(fightURI + "/actions");
 			repository.remove(fightURI + "/data");
 			System.out.println("Removed actions and data spaces of " + fightURI);
 
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -426,7 +408,7 @@ class Fight implements Runnable {
 				}else{
 					rcvAbility.Apply(fighterTwoPokemon,fighterOnePokemon);}
 				break;
-			case("ITEM"): //TODO
+			case("ITEM"):
 				rcvItem = Item.fromJson((String) fighterAction[2]);
 
 				newestActionUsed((String) fighterAction[0], (String) fighterAction[1] , rcvItem.getName());
@@ -437,8 +419,6 @@ class Fight implements Runnable {
 					rcvItem.Apply(fighterTwoPokemon);
 				}
 				break;
-			case("BYE"):
-				//nothing
 		}
 	}
 	
@@ -489,7 +469,6 @@ class Fight implements Runnable {
 				return true;
 			}
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return false;
