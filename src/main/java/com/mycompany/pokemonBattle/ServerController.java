@@ -347,17 +347,18 @@ class Fight implements Runnable {
 			actions.put(fighter2.getUsername(), Profile.toJson(fighter1));
 
 			// TODO GET DIFFERENT POKEMON FROM USERS
-			String pokemon1name = (String) data.get(new ActualField(fighter1.getUsername()), new FormalField(String.class))[1];
-			String pokemon2name = (String) data.get(new ActualField(fighter2.getUsername()), new FormalField(String.class))[1];
+			String pokemon1name = (String) data.get(new ActualField(fighter1.getUsername()+" to server"), new FormalField(String.class))[1];
+			String pokemon2name = (String) data.get(new ActualField(fighter2.getUsername()+" to server"), new FormalField(String.class))[1];
 			
 			System.out.println("Got both players pokemons:"+pokemon1name+" "+pokemon2name);
-	
+			fighterOnePokemon = fighter1.getPokemons().get(0);
 			for (Pokemon poke:fighter1.getPokemons()) {
 				if (poke.getName().equals(pokemon1name)) {
 					fighterOnePokemon = poke;
 					break;
 				}
 			}
+			fighterTwoPokemon = fighter2.getPokemons().get(0);
 			for (Pokemon poke:fighter2.getPokemons()) {
 				if (poke.getName().equals(pokemon2name)) {
 					fighterTwoPokemon = poke;
@@ -425,7 +426,7 @@ class Fight implements Runnable {
 				}else{
 					rcvAbility.Apply(fighterTwoPokemon,fighterOnePokemon);}
 				break;
-			case("ITEM"):
+			case("ITEM"): //TODO
 				rcvItem = Item.fromJson((String) fighterAction[2]);
 
 				newestActionUsed((String) fighterAction[0], (String) fighterAction[1] , rcvItem.getName());
@@ -481,6 +482,7 @@ class Fight implements Runnable {
 		data.getp(new FormalField(String.class),new FormalField(String.class));
 		data.getp(new FormalField(String.class),new FormalField(String.class));
 
+		System.out.println("Updating pokemons. poke1hp: "+fighterOnePokemon.getHP()+", poke2hp: "+fighterTwoPokemon.getHP());
 		data.put(fighter1.getUsername(),Pokemon.toJson(fighterOnePokemon));
 		data.put(fighter2.getUsername(),Pokemon.toJson(fighterTwoPokemon));
 	}

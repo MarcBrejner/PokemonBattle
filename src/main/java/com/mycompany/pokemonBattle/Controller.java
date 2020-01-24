@@ -21,12 +21,20 @@ class Controller {
     public static Profile user;
     private List<Ability> abilityList;
     public String choosenPokemon = "Pikachu";
+    public String usedAbility = "";
 
 	public static boolean loggedIn = false;
     String username = "", password = "";
     boolean shifted = false, caps = false;
     public static final int MAX_ABILITY = 4;
     public String selectedAbility = "";
+    public boolean hasLost = false;
+    
+    public boolean profileLevelUp;
+    public String newPokemon;
+    public boolean pokemonLevelUp;
+    public String newAbility;
+    
 
     GameElements gameElements;
 
@@ -197,6 +205,7 @@ class Controller {
         		
             case "fight":
 				state = "choosePokemon";
+				hasLost = false;
 				break;
 
             case "hide":
@@ -215,6 +224,7 @@ class Controller {
             case "ability1":
 				// TODO GET ABILITY FROM USER, DAMAGE VALUE FROM DB IS INCORRECT, ABILITES FROM DB GIVE 0 DMG!
 				Ability ab1 = abilityList.get(0);
+				usedAbility = ab1.getName();
 				try {
 					threadedComs.put("ABILITY", Ability.toJson(ab1));
 					System.out.println("Used ability: "+ab1.getName());
@@ -226,6 +236,7 @@ class Controller {
             case "ability2":
 				// TODO GET ABILITY FROM USER, DAMAGE VALUE FROM DB IS INCORRECT, ABILITES FROM DB GIVE 0 DMG!
             	Ability ab2 = abilityList.get(1);; //abilityList.get(1);
+            	usedAbility = ab2.getName();
 				try {
 					threadedComs.put("ABILITY", Ability.toJson(ab2));
 					System.out.println("Used ability: "+ab2.getName());
@@ -237,6 +248,7 @@ class Controller {
             case "ability3":
 				// TODO GET ABILITY FROM USER, DAMAGE VALUE FROM DB IS INCORRECT, ABILITES FROM DB GIVE 0 DMG!
 				Ability ab3 = abilityList.get(2);
+				usedAbility = ab3.getName();
 				try {
 					threadedComs.put("ABILITY", Ability.toJson(ab3));
 					System.out.println("Used ability: "+ab3.getName());
@@ -248,6 +260,7 @@ class Controller {
             case "ability4":
 				// TODO GET ABILITY FROM USER, DAMAGE VALUE FROM DB IS INCORRECT, ABILITES FROM DB GIVE 0 DMG!
 				Ability ab4 = abilityList.get(3);
+				usedAbility = ab4.getName();
 				try {
 					threadedComs.put("ABILITY", Ability.toJson(ab4));
 					System.out.println("Used ability: "+ab4.getName());
@@ -520,12 +533,8 @@ class Controller {
 						state = "endOfFight";
 						break;
 					case "LOSER":
-						gameElements.pokemon1View.fadeOut();
-						gameElements.createTextBox(300, 400, "You've lost!");
-						
-						user.setXP(user.getXP()+2);
-						threadedComs.put("LOSER_ACK");
-						state = "endOfFight";
+						hasLost = true;
+						state = "right before your turn";
 						break;
 					case "DRAW":
 						gameElements.pokemon1View.fadeOut();
@@ -546,24 +555,47 @@ class Controller {
 			case "endOfFight":
 				if (!gameElements.textBoxExists()) {
 					InGame.splashScreen.draw();
-					checkPokemonStatus();
-					checkProfileStatus();
+					gameElements.removeAll();
 					menu.changeMenu("mainMenu");
-					state = "endOfFight2";
+					state = "endOfFight1.1";
 				}
+				break;
+				
+			case "endOfFight1.1":
+				pokemonLevelUp = false;
+				checkPokemonStatus();
+				if (pokemonLevelUp) {
+					gameElements.createTextBox(200, 300, new String[] {"Your pokemon has leveled up!","You've unlocked "+newAbility});
+				}
+				state = "endOfFight1.2";
+				break;
+			
+			case "endOfFight1.2":
+				if(gameElements.textBoxExists()) break;
+				profileLevelUp = false;
+				checkProfileStatus();
+				if (profileLevelUp) {
+					gameElements.createTextBox(200, 300, new String[] {"You have leveled up!","You've unlocked "+newPokemon});
+				}
+				state = "endOfFight2";
 				break;
 			
 			case "endOfFight2":
+				if(gameElements.textBoxExists()) break;
 				if (!InGame.splashScreen.isDrawing()) {
-					//draw some advancements and such
-					gameElements.removeAll();
 					InGame.splashScreen.draw();
 					state = "mainMenu";
 				}
 				break;
             	
             case "right before your turn":
-            	gameElements.createTextBox(300, 350, "*POKEMON* used *ABILITY*");
+			try {
+				usedAbility = (String) threadedComs.get(new ActualField("last ability"),new FormalField(Integer.class), new FormalField(String.class))[2];
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+            	gameElements.createTextBox(300, 350, gameElements.pokemon2.getName()+" used "+usedAbility);
             	state = "right before your turn2";
             	break;
             
@@ -572,7 +604,7 @@ class Controller {
             		//do effects
             		gameElements.updateBars();
                 	gameElements.pokemon1View.shake();
-            		gameElements.createTextBox(300, 350, "It was *SOMETHING* effective");
+            		gameElements.createTextBox(300, 350, "It was very effective");
                 	state = "right before your turn3";
             	}
             	break;
@@ -584,12 +616,27 @@ class Controller {
             	break;
             	
             case "right before your turn4":	
+            	System.out.println("Have I lost??"+hasLost);
+            	if (hasLost) {
+					gameElements.pokemon1View.fadeOut();
+					gameElements.createTextBox(300, 400, "You've lost!");
+					
+					user.setXP(user.getXP()+2);
+					try {
+						threadedComs.put("LOSER_ACK");
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					state = "endOfFight";
+					break;
+				}
             	state = "your turn";
         		menu.changeMenu("abilities");
             	break;
             
             case "right after your turn":
-            	gameElements.createTextBox(300, 350, "*POKEMON* used *ABILITY*");
+            	gameElements.createTextBox(300, 350, gameElements.pokemon1.getName()+" used "+usedAbility);
             	state = "right after your turn2";
             	break;
             
@@ -598,7 +645,7 @@ class Controller {
             		//do effects
             		gameElements.updateBars();
                 	gameElements.pokemon2View.shake();
-            		gameElements.createTextBox(300, 350, "It was *SOMETHING* effective");
+            		gameElements.createTextBox(300, 350, "It was very effective");
                 	state = "right after your turn3";
             	}
             	break;
@@ -610,6 +657,7 @@ class Controller {
             	break;
             
             case "right after your turn4":
+            	threadedComs.getp(new ActualField("last ability"),new FormalField(Integer.class), new FormalField(String.class));
             	menu.changeMenu("not your turn");
             	state = "not your turn";
             	break;
@@ -728,6 +776,7 @@ class Controller {
     
     // function to call at the end of a fight, after the profile has been updated
     public void checkProfileStatus() {
+    	boolean leveledUp = false;
 		int XP = user.getXP(), rXP = user.getRequiredXP();
 		while(XP >= rXP) {
 			try {
@@ -750,6 +799,8 @@ class Controller {
 					user.setPokemons(new ArrayList<>(Arrays.asList(p_table)));
 					// TODO : some display of the events
 					System.out.println("[!] Received new pokemon : "+new_pokemon.getName());
+					profileLevelUp = true;
+					newPokemon = new_pokemon.getName();
 				} else {
 					System.out.println("An error occured for request 'USER_LEVEL_UP' : " + ack);
 					// if action is forbidden, we synchronize with the server to get the right value
@@ -795,6 +846,8 @@ class Controller {
 							p.setAbilities(new ArrayList<>(Arrays.asList(a_table)));
 							// TODO : some display of the events
 							System.out.println("[!] Pokemon " + p.getName() + " received new ability : "+new_ability.getName());
+							pokemonLevelUp = true;
+							newAbility = new_ability.getName();
 						} else {
 							System.out.println("Error : received an ability for another pokemon.");
 							failed = true;

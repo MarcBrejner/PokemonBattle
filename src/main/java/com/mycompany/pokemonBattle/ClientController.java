@@ -215,7 +215,7 @@ public class ClientController implements Runnable {
             
             String myPokemon = (String) mainController.get(new ActualField("choosen pokemon"),new FormalField(String.class))[1];
             System.out.println("Client got the pokemon: "+myPokemon);
-            data.put(me.getUsername(),myPokemon);
+            data.put(me.getUsername()+" to server",myPokemon);
 
             retreivePokemons();
             
@@ -287,7 +287,9 @@ public class ClientController implements Runnable {
 
 	public void retreivePokemons() throws InterruptedException {
 		System.out.println("Retrieving Pokemons...");
-		myPokemon = Pokemon.fromJson((String) data.query(new ActualField(me.getUsername()),new FormalField(String.class))[1]);
+		String temp = (String) data.query(new ActualField(me.getUsername()),new FormalField(String.class))[1];
+		System.out.println("MOEWMOEWMOEW "+temp);
+		myPokemon = Pokemon.fromJson(temp);
 		enemyPokemon = Pokemon.fromJson((String) data.query(new ActualField(enemy.getUsername()),new FormalField(String.class))[1]);
 
 		System.out.println("I have pokemon: "+myPokemon.getName()+" with HP "+myPokemon.getHP());
@@ -315,6 +317,7 @@ public class ClientController implements Runnable {
 		if(t != null){
 			String aType = t[1].equals("ABILITY") ? "ability":"item";
 			System.out.println(t[0]+" used the "+aType+" "+t[2]);
+			mainController.put("last ability",2,(String) t[2]);
 		}
 	}
 
