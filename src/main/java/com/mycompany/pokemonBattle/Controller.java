@@ -35,7 +35,6 @@ class Controller {
     public boolean pokemonLevelUp;
     public String newAbility;
     
-    private String lastAbility = "";
 
     GameElements gameElements;
 
@@ -228,8 +227,7 @@ class Controller {
 				usedAbility = ab1.getName();
 				try {
 					threadedComs.put("ABILITY", Ability.toJson(ab1));
-					lastAbility = ab1.getName();
-					System.out.println("Used ability: "+lastAbility);
+					System.out.println("Used ability: "+ab1.getName());
 					state = "right after your turn";
 				} catch (InterruptedException e) {
 					e.printStackTrace();
@@ -241,8 +239,7 @@ class Controller {
             	usedAbility = ab2.getName();
 				try {
 					threadedComs.put("ABILITY", Ability.toJson(ab2));
-					lastAbility = ab2.getName();
-					System.out.println("Used ability: "+lastAbility);
+					System.out.println("Used ability: "+ab2.getName());
 					state = "right after your turn";
 				} catch (InterruptedException e) {
 					e.printStackTrace();
@@ -254,8 +251,7 @@ class Controller {
 				usedAbility = ab3.getName();
 				try {
 					threadedComs.put("ABILITY", Ability.toJson(ab3));
-					lastAbility = ab3.getName();
-					System.out.println("Used ability: "+lastAbility);
+					System.out.println("Used ability: "+ab3.getName());
 					state = "right after your turn";
 				} catch (InterruptedException e) {
 					e.printStackTrace();
@@ -267,8 +263,7 @@ class Controller {
 				usedAbility = ab4.getName();
 				try {
 					threadedComs.put("ABILITY", Ability.toJson(ab4));
-					lastAbility = ab4.getName();
-					System.out.println("Used ability: "+lastAbility);
+					System.out.println("Used ability: "+ab4.getName());
 					state = "right after your turn";
 				} catch (InterruptedException e) {
 					e.printStackTrace();
@@ -528,9 +523,6 @@ class Controller {
 					switch((String)el[0]) {
 					case "GO":
 						state = "right before your turn";
-						break;
-					case "UPDATE":
-						lastAbility = (String)threadedComs.get(new ActualField("ABILITY"), new FormalField(String.class))[1];
 						break;
 					case "WINNER":
 						gameElements.pokemon2View.fadeOut();
