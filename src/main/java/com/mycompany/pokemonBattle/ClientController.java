@@ -29,11 +29,8 @@ public class ClientController implements Runnable {
 	public void run() {
 
 		try {
-			// Set the URI of the chat space
 			// Default value
 			String lobbyUri = "tcp://"+ Config.serverHost +"/lobby?keep";
-			
-			// Connect to the remote chat space 
 			System.out.println("Connecting to server lobby " + lobbyUri + "...");
 			RemoteSpace lobby = new RemoteSpace(lobbyUri);
 			status = "CONNECTED TO LOBBY";
@@ -56,7 +53,6 @@ public class ClientController implements Runnable {
 					if (resp.equals("OK")) {
 						System.out.println("Authentication successful");
 						mainController.put(request + "_ACK", "OK");
-						//joining room
 						String serverControllerURI = "tcp://"+ Config.serverHost +"/handlers/"+username+"?keep";
 						RemoteSpace serverController = new RemoteSpace(serverControllerURI);
 						status = "REGISTERED AS " + username + " - CONNECTED TO PERSONNAL HANDLER";
@@ -87,7 +83,6 @@ public class ClientController implements Runnable {
 									}
 								}
 							} catch (InterruptedException e) {
-								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}	
 						} else {
@@ -95,7 +90,6 @@ public class ClientController implements Runnable {
 							profile = Profile.fromJson(t);
 						}
 						
-						// Keep sending whatever the user types
 						Boolean registered = true;
 						while(registered) {
 							System.out.println(status);
@@ -182,13 +176,10 @@ public class ClientController implements Runnable {
 				}
 			}
 		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (InterruptedException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 	}
@@ -204,8 +195,6 @@ public class ClientController implements Runnable {
             actions = new RemoteSpace("tcp://" + Config.fightsHost + "/" + URI + "/actions?keep");
             data = new RemoteSpace("tcp://" + Config.fightsHost + "/" + URI + "/data?keep");
             System.out.println("Connected to data and actions spaces");
-
-            //BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
             System.out.println("Waiting for opponent data reception...");
             String e = (String) actions.get(new ActualField(user.getUsername()), new FormalField(String.class))[1];
@@ -231,7 +220,6 @@ public class ClientController implements Runnable {
                     break;
                 }
 
-                //System.out.println("Got from server: "+(String)serverResponse[1]);
                 switch((String) serverResponse[1]){
                     case "GO":
 						System.out.println("Your Turn");
@@ -275,10 +263,8 @@ public class ClientController implements Runnable {
             }
 
         } catch (UnknownHostException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (InterruptedException e) {
             e.printStackTrace();

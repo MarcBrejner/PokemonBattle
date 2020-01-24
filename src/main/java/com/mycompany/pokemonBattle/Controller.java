@@ -34,22 +34,17 @@ class Controller {
     public String newPokemon;
     public boolean pokemonLevelUp;
     public String newAbility;
-    
-    private String lastAbility = "";
 
     GameElements gameElements;
 
-    //public Controller(int port, String username, String password)
     public Controller() {
         this.state = "welcome";
-        //SPACES
         threadedComs = new SequentialSpace();
         
         new Thread(new ClientController(threadedComs)).start();
     }
 
     public void handleKeyboard(String code, String text, boolean isShifted){
-    	//System.out.println(code+", "+text);
     	shifted = isShifted;
         if (code == "ENTER"){
 			if (gameElements.textBoxIsTyping()) {
@@ -99,7 +94,6 @@ class Controller {
 					threadedComs.put("DISCONNECT");
 					state = "disconnect";
 				} catch (InterruptedException e2) {
-					// TODO Auto-generated catch block
 					e2.printStackTrace();
 				}
         		break;
@@ -153,7 +147,6 @@ class Controller {
 					threadedComs.put("SIGNUP", username, password);
 					state = "submittedSignUp";
 				} catch (InterruptedException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
         		break;
@@ -199,7 +192,6 @@ class Controller {
 					}
 					state = "members";
 				} catch (InterruptedException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
         		break;
@@ -223,58 +215,50 @@ class Controller {
             	break;
             	
             case "ability1":
-				// TODO GET ABILITY FROM USER, DAMAGE VALUE FROM DB IS INCORRECT, ABILITES FROM DB GIVE 0 DMG!
 				Ability ab1 = abilityList.get(0);
 				usedAbility = ab1.getName();
 				try {
 					threadedComs.put("ABILITY", Ability.toJson(ab1));
-					lastAbility = ab1.getName();
-					System.out.println("Used ability: "+lastAbility);
+					System.out.println("Used ability: "+usedAbility);
 					state = "right after your turn";
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
 				break;
             case "ability2":
-				// TODO GET ABILITY FROM USER, DAMAGE VALUE FROM DB IS INCORRECT, ABILITES FROM DB GIVE 0 DMG!
-            	Ability ab2 = abilityList.get(1);; //abilityList.get(1);
+            	Ability ab2 = abilityList.get(1);
             	usedAbility = ab2.getName();
 				try {
 					threadedComs.put("ABILITY", Ability.toJson(ab2));
-					lastAbility = ab2.getName();
-					System.out.println("Used ability: "+lastAbility);
+					System.out.println("Used ability: "+usedAbility);
 					state = "right after your turn";
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
 				break;
             case "ability3":
-				// TODO GET ABILITY FROM USER, DAMAGE VALUE FROM DB IS INCORRECT, ABILITES FROM DB GIVE 0 DMG!
 				Ability ab3 = abilityList.get(2);
 				usedAbility = ab3.getName();
 				try {
 					threadedComs.put("ABILITY", Ability.toJson(ab3));
-					lastAbility = ab3.getName();
-					System.out.println("Used ability: "+lastAbility);
+					System.out.println("Used ability: "+usedAbility);
 					state = "right after your turn";
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
 				break;
             case "ability4":
-				// TODO GET ABILITY FROM USER, DAMAGE VALUE FROM DB IS INCORRECT, ABILITES FROM DB GIVE 0 DMG!
 				Ability ab4 = abilityList.get(3);
 				usedAbility = ab4.getName();
 				try {
 					threadedComs.put("ABILITY", Ability.toJson(ab4));
-					lastAbility = ab4.getName();
-					System.out.println("Used ability: "+lastAbility);
+					System.out.println("Used ability: "+usedAbility);
 					state = "right after your turn";
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
 				break;
-        } //switch statement end
+        }
         
         if (state == "choosePokemon2") {
 	        if (action.length() >= 9) {
@@ -297,7 +281,6 @@ class Controller {
     public void stateHandler(){
     	int tbx = 50;
     	int tby = 500;
-    	boolean firstTurn = true;
     	
         switch (state) {
         	case "welcome":
@@ -321,7 +304,6 @@ class Controller {
 						menu.changeMenu("welcome");
 					}
 				} catch (InterruptedException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 				break;
@@ -346,7 +328,6 @@ class Controller {
 						state = "connect";
 					}
 				} catch (InterruptedException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 				break;
@@ -390,7 +371,6 @@ class Controller {
 						state = "signup";
 					}
 				} catch (InterruptedException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 				break;
@@ -435,7 +415,6 @@ class Controller {
             	try {
 					threadedComs.put("FIGHT");
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 
@@ -465,7 +444,6 @@ class Controller {
 				try {
 					threadedComs.put("choosen pokemon",choosenPokemon);
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
         		System.out.println("waiting for pokemon ack, "+choosenPokemon);
@@ -495,7 +473,6 @@ class Controller {
             case "waitingForSplash":
             	if (!InGame.splashScreen.isDrawing()) {
                     //wait until splash animation is over
-                    //state = "not your turn";
             		gameElements.getPokemonViews();
     				gameElements.draw();
     				gameElements.pokemon1View.glide(100);
@@ -553,7 +530,6 @@ class Controller {
 						break;
 					}
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
             	break;
@@ -599,7 +575,6 @@ class Controller {
 			try {
 				usedAbility = (String) threadedComs.get(new ActualField("last ability"),new FormalField(Integer.class), new FormalField(String.class))[2];
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
             	gameElements.createTextBox(300, 350, gameElements.pokemon2.getName()+" used "+usedAbility);
@@ -632,7 +607,6 @@ class Controller {
 					try {
 						threadedComs.put("LOSER_ACK");
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 					state = "endOfFight";
@@ -694,29 +668,6 @@ class Controller {
             case "choose pokemon":
             	menu.draw();
             	break;
-            	
-            case "preFightAnimation1":
-            	gameElements.createTextBox(tbx,tby, "You: GO *INSERT POKEMON NAME*");
-            	gameElements.trainer1View.glide(-100);
-            	gameElements.pokemon1View.glide(100);
-            	state = "preFightAnimation2";
-            	break;
-            
-            case "preFightAnimation2":
-            	if (!gameElements.textBoxExists()) {
-            		gameElements.createTextBox(tbx,tby, "Fanya: ԠДҪЊДԠP, DЄLЇVЄЯ MЄ ҢЇS SPЇЍЄ");
-            		state = "preFightAnimation3";
-            	}
-            	break;
-            
-            case "preFightAnimation3":
-            	if (!gameElements.textBoxExists()) {
-            		gameElements.trainer2View.glide(700);
-            		gameElements.pokemon2View.glide(400);
-            		state = "preFightAnimation4";
-            		gameElements.createTextBox(tbx, tby, "Machamp: I̴̤̍ ̶͊ ̵̯̉Ć̶͖H̷̢̆R̸̪̀U̶̥͂S̸͔̄H̴͚͆ ̴̪̈Y̴͈̏Ỏ̵̼U̴̜͒");
-            	}
-            	break;
             
             case "preFightAnimation4":
             	if (!gameElements.textBoxExists()) {
@@ -724,17 +675,6 @@ class Controller {
             		gameElements.drawBars();
             	}
             	break;
-
-            case "fight":
-                menu.draw();
-                if (gameElements.pokemon2.getHP() < 0 && !gameElements.pokemon2View.isRunning()) {
-                	String[] fightIntroTexts2 = new String[] {
-                     		"Pikachu used something*",
-                     		"It was extremely effective"};
-            		gameElements.createTextBox(tbx, tby, fightIntroTexts2);
-                	state = "machamp is kil";
-                }
-                break;
                 
             case "pokemons":
             	menu.draw();
@@ -748,31 +688,7 @@ class Controller {
             	// for now just redirect to the main menu but in the end should display the list of connectedMembers
             	state = "mainMenu";
             	break;
-            
-            case "machamp is kil":
-            	if (!gameElements.textBoxExists()) {
-	            	gameElements.pokemon2View.fadeOut();
-	            	state = "machamp is fading";
-            	}
-            	break;
-            
-            case "machamp is fading":
-            	System.out.println(gameElements.pokemon2View.isRunning());
-            	if (!gameElements.pokemon2View.isRunning()) {
-            		gameElements.pokemon1View.glide(-100);
-            		gameElements.trainer1View.glide(100);
-            		gameElements.trainer2View.glide(450);
-            		gameElements.hpBar1.remove();
-            		gameElements.hpBar2.remove();
-            		 String[] fightIntroTexts2 = new String[] {
-                     		"Fanya: *crying*",
-                     		"Fanya: PФҚԐ ЇS ҜЇL",
-                     		"Fanya: ЍФФФФФФ!",
-                     		"*TO BE CONTINUED*"};
-            		gameElements.createTextBox(tbx, tby, fightIntroTexts2);
-            		state = "fade out";
-            	}
-            	break;
+
             case "fade out":
             	if (!gameElements.textBoxExists()) {
             		gameElements.trainer2View.glide(700);
@@ -783,7 +699,6 @@ class Controller {
     
     // function to call at the end of a fight, after the profile has been updated
     public void checkProfileStatus() {
-    	boolean leveledUp = false;
 		int XP = user.getXP(), rXP = user.getRequiredXP();
 		while(XP >= rXP) {
 			try {
@@ -804,7 +719,6 @@ class Controller {
 					Pokemon[] p_table = gson.fromJson((String)elems[2], Pokemon[].class);
 					// update user's list of pokemons
 					user.setPokemons(new ArrayList<>(Arrays.asList(p_table)));
-					// TODO : some display of the events
 					System.out.println("[!] Received new pokemon : "+new_pokemon.getName());
 					profileLevelUp = true;
 					newPokemon = new_pokemon.getName();
@@ -851,7 +765,6 @@ class Controller {
 					        Ability[] a_table = gson.fromJson((String)elem[3], Ability[].class);
 					        // update pokemon's list of abilities
 							p.setAbilities(new ArrayList<>(Arrays.asList(a_table)));
-							// TODO : some display of the events
 							System.out.println("[!] Pokemon " + p.getName() + " received new ability : "+new_ability.getName());
 							pokemonLevelUp = true;
 							newAbility = new_ability.getName();
