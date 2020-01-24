@@ -298,17 +298,6 @@ public class ClientController implements Runnable {
 		GameElements.pokemon1 = myPokemon;
 		GameElements.pokemon2 = enemyPokemon;
 
-		/*if(myPokemon.getHP() <= 0 && enemyPokemon.getHP() <= 0){
-            System.out.println("Both pokemons fainted, it's a draw");
-            fighting = false;
-        }else if(myPokemon.getHP() <= 0){
-		    System.out.println("Your "+myPokemon.getName()+" fainted, you lost");
-            fighting = false;
-        }else if(enemyPokemon.getHP() <= 0){
-            System.out.println("Enemy "+enemyPokemon.getName()+" fainted, you won!");
-            fighting = false;
-        }*/
-
 	}
 
 	public void getNewestAction() throws InterruptedException{

@@ -434,7 +434,7 @@ class Fight implements Runnable {
 				if(fighterNumber == 1){
 					rcvItem.Apply(fighterOnePokemon);
 				}else{
-					rcvItem.Apply(fighterOnePokemon);
+					rcvItem.Apply(fighterTwoPokemon);
 				}
 				break;
 			case("BYE"):
@@ -446,24 +446,42 @@ class Fight implements Runnable {
 	public boolean fightEnded() {
 		try {
 			if(fighterOnePokemon.getHP() <= 0 && fighterTwoPokemon.getHP() <= 0){
-				fighter1.setXP(fighter1.getXP()+3);
-				fighter2.setXP(fighter2.getXP()+3);
+				// for now reset of HP
+				fighterOnePokemon.setHP(fighterOnePokemon.getMaxHP());
+				fighterTwoPokemon.setHP(fighterTwoPokemon.getMaxHP());
+				// add experience and save progress
+				fighterOnePokemon.setXP(fighterOnePokemon.getXP()+2);
+				fighterTwoPokemon.setXP(fighterTwoPokemon.getXP()+2);
+				fighter1.setXP(fighter1.getXP()+2);
+				fighter2.setXP(fighter2.getXP()+2);
 				database.saveProfile(fighter1);
 				database.saveProfile(fighter2);
 				actions.put(fighter1.getUsername(),"DRAW");
 				actions.put(fighter2.getUsername(),"DRAW");
 				return true;
 			} else if(fighterOnePokemon.getHP() <= 0){
-				fighter1.setXP(fighter1.getXP()+2);
-				fighter2.setXP(fighter2.getXP()+4);
+				// for now reset of HP
+				fighterOnePokemon.setHP(fighterOnePokemon.getMaxHP());
+				fighterTwoPokemon.setHP(fighterTwoPokemon.getMaxHP());
+				// add experience and save progress
+				fighterOnePokemon.setXP(fighterOnePokemon.getXP()+1);
+				fighterTwoPokemon.setXP(fighterTwoPokemon.getXP()+3);
+				fighter1.setXP(fighter1.getXP()+1);
+				fighter2.setXP(fighter2.getXP()+3);
 				database.saveProfile(fighter1);
 				database.saveProfile(fighter2);
 				actions.put(fighter1.getUsername(),"LOSER");
 				actions.put(fighter2.getUsername(),"WINNER");
 				return true;
 			} else if(fighterTwoPokemon.getHP() <= 0){
-				fighter1.setXP(fighter1.getXP()+4);
-				fighter2.setXP(fighter2.getXP()+2);
+				// for now reset of HP
+				fighterOnePokemon.setHP(fighterOnePokemon.getMaxHP());
+				fighterTwoPokemon.setHP(fighterTwoPokemon.getMaxHP());
+				// add experience and save progress
+				fighterOnePokemon.setXP(fighterOnePokemon.getXP()+3);
+				fighterTwoPokemon.setXP(fighterTwoPokemon.getXP()+1);
+				fighter1.setXP(fighter1.getXP()+3);
+				fighter2.setXP(fighter2.getXP()+1);
 				database.saveProfile(fighter1);
 				database.saveProfile(fighter2);
 				actions.put(fighter1.getUsername(),"WINNER");
